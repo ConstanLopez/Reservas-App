@@ -6,7 +6,7 @@ CREATE TABLE login (
     contraseña VARCHAR(50) NOT NULL
 );
 CREATE TABLE participante (
-    ci CHAR(8) PRIMARY KEY,
+    ci INT PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
     apellido VARCHAR(50) NOT NULL,
     email VARCHAR(50) NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE programa_academico (
 
 CREATE TABLE participante_programa_academico (
     id_alumno_programa INT AUTO_INCREMENT PRIMARY KEY,
-    ci_participante CHAR(8) NOT NULL ,
+    ci_participante INT NOT NULL ,
     nombre_programa VARCHAR(50) NOT NULL,
     rol ENUM ('alumno', 'docente') NOT NULL,
     FOREIGN KEY (nombre_programa) REFERENCES programa_academico(nombre_programa),
@@ -71,8 +71,8 @@ CREATE TABLE reserva(
 );
 
 CREATE TABLE reserva_participante (
-    ci_participante CHAR (8) NOT NULL,
-    id_reserva INT NOT NULL,
+    ci_participante int NOT NULL,
+    id_reserva INT  PRIMARY KEY ,
     fecha_solicitud_reserva DATE NOT NULL,
     asistencia BOOLEAN NOT NULL,
     FOREIGN KEY (ci_participante) REFERENCES participante(ci),
@@ -80,7 +80,7 @@ CREATE TABLE reserva_participante (
 );
 
 CREATE TABLE sancion_partcipante(
-    ci_participante CHAR(8) NOT NULL,
+    ci_participante int NOT NULL,
     fecha_inicio DATE NOT NULL,
     fecha_fin DATE NOT NULL,
     FOREIGN KEY (ci_participante) REFERENCES participante(ci),
