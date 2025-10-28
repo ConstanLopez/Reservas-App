@@ -1,11 +1,15 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './styles/index.css'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { StrictMode } from 'react';
+import App from './App.jsx';
+import { AuthProvider } from './context/AuthContext';
+import './styles/index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Login } from './pages/Login.jsx';
 
-createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Login />
-  </StrictMode>,
-)
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </StrictMode>
+);
