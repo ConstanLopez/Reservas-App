@@ -30,8 +30,12 @@ def create_app():
     def health():
         return jsonify({"status": "ok"}), 200
 
-    from app.routes import auth
-    app.register_blueprint(auth.bp)  # bp ya trae /api/auth
+    # Registrar blueprints
+    from .routes import auth, reservas, salas, turnos
+    app.register_blueprint(auth.bp)
+    app.register_blueprint(reservas.bp)
+    app.register_blueprint(salas.bp)
+    app.register_blueprint(turnos.bp)
 
     @app.get("/api/_routes")
     def routes():

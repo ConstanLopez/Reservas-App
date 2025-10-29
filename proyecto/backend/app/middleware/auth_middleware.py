@@ -20,8 +20,11 @@ def token_required(f):
         if not payload:
             return jsonify({'error': 'Token inválido o expirado'}), 401
         
-        # Agregar datos del usuario al request
+        # Agregar datos del usuario al request (mantener compatibilidad)
         request.user = payload
+        
+        # NUEVO: Pasar current_user como keyword argument a la función
+        kwargs['current_user'] = payload
         
         return f(*args, **kwargs)
     
