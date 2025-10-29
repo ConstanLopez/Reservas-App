@@ -23,7 +23,7 @@ services:
       DB_PORT: 3306
     ports:
       - "5000:5000"
-    command: python app/main.py
+    command: python -m app.main
     depends_on:
       - db
 
