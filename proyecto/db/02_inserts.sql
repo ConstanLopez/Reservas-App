@@ -1,5 +1,9 @@
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+SET collation_connection = 'utf8mb4_general_ci';
+
 -- INSERT para tabla login (10 registros)
-INSERT INTO login (correo, contraseña) VALUES
+INSERT INTO login (correo, contrasena) VALUES
 ('juan.perez@universidad.edu.uy', 'Pass123!'),
 ('maria.gonzalez@universidad.edu.uy', 'Secure456'),
 ('carlos.rodriguez@universidad.edu.uy', 'MyPass789'),

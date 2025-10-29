@@ -1,9 +1,9 @@
-CREATE DATABASE reservas_db;
+CREATE DATABASE IF NOT EXISTS reservas_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE reservas_db;
 
 CREATE TABLE login (
     correo VARCHAR(50) PRIMARY KEY ,
-    contraseña VARCHAR(50) NOT NULL
+    contrasena VARCHAR(50) NOT NULL
 );
 CREATE TABLE participante (
     ci INT PRIMARY KEY,
@@ -86,3 +86,8 @@ CREATE TABLE sancion_partcipante(
     FOREIGN KEY (ci_participante) REFERENCES participante(ci),
     PRIMARY KEY (ci_participante,fecha_inicio,fecha_fin)
 );
+
+
+CREATE USER IF NOT EXISTS 'appuser'@'%' IDENTIFIED BY 'apppass';
+GRANT ALL PRIVILEGES ON reservas_db.* TO 'appuser'@'%';
+FLUSH PRIVILEGES;
