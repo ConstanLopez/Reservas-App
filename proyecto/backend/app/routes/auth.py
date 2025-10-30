@@ -1,10 +1,10 @@
 # app/routes/auth.py
 from flask import Blueprint, request, jsonify
-from flask_cors import cross_origin
+from flask_cors import cross_origin #cross origin se usa en cada endpoint
 from app.models.auth import Auth
 from app.utils.auth_utils import hash_password, verify_password, generate_token
 
-# 👇 prefijo directo: /api/auth
+#Creamos un Blueprint, que va a agrupar todas las rutas bajo el prefijo  /api/auth
 bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
@@ -13,20 +13,24 @@ ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
               methods=['POST','OPTIONS'],
               allow_headers=['Content-Type','Authorization'],
               expose_headers=['Authorization'])
+
+
 def register():
-    if request.method == 'OPTIONS':
-        return ('', 204)
+    if request.method == 'OPTIONS': #Esto lo que hace es autorizar el preflight del buscador antes de la query real, esto ya que esta el método OPTIONS del CORS
+        return ('', 204) 
 
-    data = request.get_json(silent=True) or {}
-    required_fields = ['ci', 'nombre', 'apellido', 'email', 'password']
+    data = request.get_json(silent=True) or {} #Obtenemos el JSON del FRONTEND,  silent=True => evita lanzar error si el JSON no está bien formado, y none como valor por defecto
+    required_fields = ['ci', 'nombre', 'apellido', 'email', 'password'] # campos obligatorios
     for field in required_fields:
-        if not data.get(field):
-            return jsonify({'error': f'El campo {field} es requerido'}), 400
+        if not data.get(field): # si falta algun dato requerido se devuelve un error
+            return jsonify({'error': f'El campo {field} es requerido'}), 400 #se devuelve un JSON con el campo que falta
 
+    #Extrae del JSON de la request los campos requeridos 
     ci = data['ci']; nombre = data['nombre']; apellido = data['apellido']
     email = data['email']; password = data['password']
     nombre_programa = data.get('nombre_programa'); rol = data.get('rol', 'alumno')
 
+    #Controla si el ci, o el mail ya estan registrados y el largo de la contraseña
     if Auth.email_existe(email):
         return jsonify({'error': 'El email ya está registrado'}), 400
     if Auth.ci_existe(ci):
@@ -35,20 +39,27 @@ def register():
         return jsonify({'error': 'La contraseña debe tener al menos 6 caracteres'}), 400
 
     try:
+        #genera el hash de la contrasena con bycrypt
         password_hash = hash_password(password)
+
+        #Crea el nuevo registro en la tabla login y participante
         Auth.crear_login(email, password_hash)
         Auth.crear_participante(ci, nombre, apellido, email)
+
+        #Si el usuario esta en un programa, lo asigna
         if nombre_programa:
             Auth.asignar_programa(ci, nombre_programa, rol)
 
+        #Crea un diccionario con los datos del usuario y con generate_token crea un JWT firmado con la SECRET_KEY
+        #Este token  se devuelve al frontend para matener la sesión del usuario
         user_data = {'correo': email, 'ci': ci, 'nombre': nombre,
                      'apellido': apellido, 'rol': rol, 'tipo_programa': 'grado'}
         token = generate_token(user_data)
 
         return jsonify({
             'message': 'Usuario registrado exitosamente',
-            'token': token,
-            'user': {'ci': ci, 'nombre': nombre, 'apellido': apellido, 'email': email, 'rol': rol}
+            'token': token, #Token JWT
+            'user': {'ci': ci, 'nombre': nombre, 'apellido': apellido, 'email': email, 'rol': rol} #Datos visibles del usuario
         }), 201
     except Exception as e:
         print(f"Error en register: {e}")
@@ -65,18 +76,19 @@ def login():
         return ('', 204)
 
     data = request.get_json(silent=True) or {}
-    if not data.get('email') or not data.get('password'):
+    if not data.get('email') or not data.get('password'): #Chequea que el mail y la contraseña hayan sido ingresados
         return jsonify({'error': 'Email y contraseña son requeridos'}), 400
 
     try:
-        usuario = Auth.obtener_usuario_por_email(data['email'])
-        if not usuario or not verify_password(data['password'], usuario['password_hash']):
-            return jsonify({'error': 'Credenciales inválidas'}), 401
+        usuario = Auth.obtener_usuario_por_email(data['email']) #Busca al usuario por email
+        if not usuario or not verify_password(data['password'], usuario['password_hash']): #si no hay usuario o la contraseña no es correcta devuelve error
+            return jsonify({'error': 'Credenciales inválidas'}), 401 
 
-        roles = Auth.obtener_roles_usuario(usuario['ci'])
-        rol = roles[0]['rol'] if roles else 'alumno'
-        tipo_programa = roles[0]['tipo'] if roles else 'grado'
+        roles = Auth.obtener_roles_usuario(usuario['ci']) #obtiene el rol del usuario
+        rol = roles[0]['rol'] if roles else 'alumno' # A revisar, pero si tiene mas de uno agarra el primero, sino tiene se asigna por defecto
+        tipo_programa = roles[0]['tipo'] if roles else 'grado' # Se agarra el primero, sino tiene es por defecto grado
 
+        #payload JWT
         user_data = {'correo': usuario['correo'], 'ci': usuario['ci'], 'nombre': usuario['nombre'],
                      'apellido': usuario['apellido'], 'rol': rol, 'tipo_programa': tipo_programa}
         token = generate_token(user_data)
@@ -91,15 +103,15 @@ def login():
         print(f"Error en login: {e}")
         return jsonify({'error': 'Error al iniciar sesión'}), 500
 
-
+#Esta ruta sirve para verificar la validez del token JWT que envía el frontend. Clave para mantener sesiones persistentes o validar accesos
 @bp.route('/verify', methods=['GET'])
 def verify():
     from app.utils.auth_utils import verify_token
-    auth_header = request.headers.get('Authorization')
+    auth_header = request.headers.get('Authorization') #Busca el header  Authorization en la solicitud
     if not auth_header or not auth_header.startswith('Bearer '):
         return jsonify({'error': 'Token no proporcionado'}), 401
-    token = auth_header.split(' ')[1]
-    payload = verify_token(token)
+    token = auth_header.split(' ')[1] #divide la cadena en dos Bearer y el token, se queda con la segunda
+    payload = verify_token(token) #Verifica el token
     if not payload:
         return jsonify({'error': 'Token inválido o expirado'}), 401
     return jsonify({'valid': True, 'user': payload}), 200

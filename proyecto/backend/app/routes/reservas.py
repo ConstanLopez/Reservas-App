@@ -5,22 +5,23 @@ from app.models.sala import Sala
 from app.models.turno import Turno
 from datetime import datetime
 
+#Definimos el conjunto de rutas agrupadas para las rutas de reservas 
 bp = Blueprint('reservas', __name__, url_prefix='/api/reservas')
 
 @bp.get('/mis-reservas')
 @token_required
 def get_mis_reservas(current_user):
-    """Obtiene todas las reservas del usuario autenticado"""
+    """Obtiene todas las reservas del usuario autenticado según su cédula"""
     try:
-        ci = current_user['ci']
-        incluir_canceladas = request.args.get('incluir_canceladas', 'false').lower() == 'true'
+        ci = current_user['ci'] #Se extrae la cédula
+        incluir_canceladas = request.args.get('incluir_canceladas', 'false').lower() == 'true' #incuye reservas canceladas
         
-        reservas = Reserva.get_by_participante(ci, incluir_canceladas)
+        reservas = Reserva.get_by_participante(ci, incluir_canceladas) #Llamamos al método para obtener las reservas de cada participante segun su CI
         
-        return jsonify({
-            'success': True,
+        return jsonify({ #Devolvemos un JSON
+            'success': True, 
             'data': reservas,
-            'count': len(reservas)
+            'count': len(reservas) #Cuenta la cantidad total de reservas
         }), 200
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
@@ -31,7 +32,7 @@ def get_reservas_activas(current_user):
     """Obtiene reservas activas futuras del usuario"""
     try:
         ci = current_user['ci']
-        reservas = Reserva.get_activas_futuras(ci)
+        reservas = Reserva.get_activas_futuras(ci) #Filtra las reservas por ci
         
         return jsonify({
             'success': True,
@@ -46,12 +47,12 @@ def get_reservas_activas(current_user):
 def get_reserva_detalle(current_user, id_reserva):
     """Obtiene el detalle de una reserva específica"""
     try:
-        reserva = Reserva.get_by_id(id_reserva)
+        reserva = Reserva.get_by_id(id_reserva) #Obtiene una reserva por si id en especifico
         
-        if not reserva:
+        if not reserva: #si el id de la reserva  no existe
             return jsonify({'success': False, 'message': 'Reserva no encontrada'}), 404
         
-        # Verificar que la reserva pertenezca al usuario
+        # Verificar que la reserva pertenezca al usuario y no a usuarios ajenos
         if reserva['ci_participante'] != current_user['ci']:
             return jsonify({'success': False, 'message': 'No autorizado'}), 403
         
@@ -67,17 +68,17 @@ def get_reserva_detalle(current_user, id_reserva):
 def crear_reserva(current_user):
     """Crea una nueva reserva"""
     try:
-        data = request.get_json()
+        data = request.get_json() #recibimos el json de la request
         
         # Validar campos requeridos
         required_fields = ['nombre_sala', 'edificio', 'fecha', 'id_turno']
         for field in required_fields:
-            if field not in data:
+            if field not in data: #si falta algun campo requerido
                 return jsonify({
                     'success': False, 
                     'message': f'Campo requerido: {field}'
                 }), 400
-        
+        #extraemos los campos 
         nombre_sala = data['nombre_sala']
         edificio = data['edificio']
         fecha_str = data['fecha']
@@ -124,15 +125,15 @@ def crear_reserva(current_user):
 def cancelar_reserva(current_user, id_reserva):
     """Cancela una reserva"""
     try:
-        ci = current_user['ci']
-        success, mensaje = Reserva.cancelar(id_reserva, ci)
+        ci = current_user['ci'] 
+        success, mensaje = Reserva.cancelar(id_reserva, ci) # verifica si la reserva pertenece al usuario , si esta activa, actualiza el estado
         
-        if success:
+        if success: # se cancelo la reserva correctamente
             return jsonify({
                 'success': True,
                 'message': mensaje
             }), 200
-        else:
+        else: # no se pudo cancelar la reserva
             return jsonify({
                 'success': False,
                 'message': mensaje

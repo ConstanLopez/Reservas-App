@@ -4,7 +4,7 @@ from datetime import date
 class Reserva:
     @staticmethod
     def get_by_participante(ci_participante, incluir_canceladas=False):
-        """Obtiene todas las reservas de un participante"""
+        """Obtiene todas las reservas de un participante, opcionalmente incluyendo las canceladas"""
         estado_condicion = "" if incluir_canceladas else "AND r.estado != 'cancelada'"
         
         query = f"""
@@ -28,7 +28,7 @@ class Reserva:
     
     @staticmethod
     def get_by_id(id_reserva):
-        """Obtiene una reserva específica con toda su información"""
+        """Obtiene una reserva específica con toda su información a partir del id de la reserva"""
         query = """
             SELECT r.*, 
                    rp.ci_participante, rp.fecha_solicitud_reserva, rp.asistencia,
@@ -44,8 +44,8 @@ class Reserva:
             JOIN participante p ON rp.ci_participante = p.ci
             WHERE r.id_reserva = %s
         """
-        rows = fetch_query(query, (id_reserva,))
-        return rows[0] if rows else None
+        rows = fetch_query(query, (id_reserva,)) 
+        return rows[0] if rows else None # si la reserva existe, devuelve  el único diccionario, sino devuelve None
     
     @staticmethod
     def crear(nombre_sala, edificio, fecha, id_turno, ci_participante):
@@ -103,14 +103,14 @@ class Reserva:
     @staticmethod
     def cancelar(id_reserva, ci_participante):
         """Cancela una reserva (solo si es del participante y está activa)"""
-        reserva = Reserva.get_by_id(id_reserva)
-        
+        reserva = Reserva.get_by_id(id_reserva) 
+        #verifica que exista la reserva
         if not reserva:
             return False, "Reserva no encontrada"
-        
+        #verifica que la reserva sea propia
         if reserva['ci_participante'] != ci_participante:
             return False, "No tienes permiso para cancelar esta reserva"
-        
+        #verifica que la reserva  no este cancelada
         if reserva['estado'] != 'activa':
             return False, f"No se puede cancelar una reserva con estado '{reserva['estado']}'"
         
@@ -118,14 +118,15 @@ class Reserva:
         if reserva['fecha'] < date.today():
             return False, "No se pueden cancelar reservas pasadas"
         
+        #Actualizar el estado de la reserva
         query = """
             UPDATE reserva 
             SET estado = 'cancelada'
             WHERE id_reserva = %s
         """
         if execute_query(query, (id_reserva,)):
-            return True, "Reserva cancelada exitosamente"
-        return False, "Error al cancelar la reserva"
+            return True, "Reserva cancelada exitosamente" #La reserva fue cancelada
+        return False, "Error al cancelar la reserva" #No se pudo cancelar la reserva
     
     @staticmethod
     def get_activas_futuras(ci_participante):

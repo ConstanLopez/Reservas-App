@@ -14,7 +14,7 @@ class Sala:
     
     @staticmethod
     def get_by_nombre_edificio(nombre_sala, edificio):
-        """Obtiene una sala específica"""
+        """Obtiene una sala específica dado su nombre y edificio"""
         query = """
             SELECT s.*, e.direccion, e.departamento
             FROM sala s
@@ -34,9 +34,10 @@ class Sala:
         
         # Obtener información del participante
         participante = Participante.get_by_ci(ci_participante)
-        if not participante:
+        if not participante: #si no existe el participante
             return []
         
+        #se consulta el rol academico
         es_docente = Participante.es_docente(ci_participante)
         es_posgrado = Participante.es_posgrado(ci_participante)
         
@@ -66,13 +67,13 @@ class Sala:
     
     @staticmethod
     def puede_reservar(nombre_sala, edificio, ci_participante):
-        """Verifica si un participante puede reservar una sala específica"""
+        """Verifica si un participante tiene el permiso para poder  reservar una sala específica"""
         from app.models.participante import Participante
         
-        sala = Sala.get_by_nombre_edificio(nombre_sala, edificio)
+        sala = Sala.get_by_nombre_edificio(nombre_sala, edificio) #se obtiene la sala
         if not sala:
             return False, "Sala no encontrada"
-        
+        #comprobar rol del paticipante
         es_docente = Participante.es_docente(ci_participante)
         es_posgrado = Participante.es_posgrado(ci_participante)
         
