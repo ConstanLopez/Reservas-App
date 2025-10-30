@@ -3,7 +3,7 @@ from app.database import fetch_query
 class Turno:
     @staticmethod
     def get_all():
-        """Obtiene todos los turnos ordenados por hora de inicio"""
+        """Obtiene todos los turnos ordenados por hora de inicio, para poder crear una reserva"""
         query = """
             SELECT * FROM turno
             ORDER BY hora_inicio
@@ -19,7 +19,7 @@ class Turno:
     
     @staticmethod
     def get_disponibles_para_sala(fecha, nombre_sala, edificio):
-        """Obtiene turnos disponibles para una sala en una fecha específica"""
+        """Obtiene turnos disponibles para una sala en una fecha específica mostrando todos los turnos del día, marcando cuáles están libres o ocupados"""
         query = """
             SELECT t.*,
                    CASE WHEN r.id_reserva IS NULL THEN 1 ELSE 0 END as disponible

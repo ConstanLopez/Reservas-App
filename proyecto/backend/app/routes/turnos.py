@@ -8,7 +8,7 @@ bp = Blueprint('turnos', __name__, url_prefix='/api/turnos')
 @bp.get('')
 @token_required
 def get_turnos(current_user):
-    """Obtiene todos los turnos disponibles"""
+    """Obtiene todos los turnos existentes en la db"""
     try:
         turnos = Turno.get_all()
         return jsonify({
@@ -22,7 +22,7 @@ def get_turnos(current_user):
 @bp.get('/<int:id_turno>')
 @token_required
 def get_turno_detalle(current_user, id_turno):
-    """Obtiene el detalle de un turno específico"""
+    """Obtiene el detalle de un turno específico, segun el id del turno"""
     try:
         turno = Turno.get_by_id(id_turno)
         

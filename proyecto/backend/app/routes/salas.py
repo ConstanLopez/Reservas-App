@@ -6,11 +6,11 @@ from datetime import datetime
 bp = Blueprint('salas', __name__, url_prefix='/api/salas')
 
 @bp.get('')
-@token_required
+@token_required #middleware que protege las rutas,asegurando que el usuario este bajo un JWT válido
 def get_salas(current_user):
     """Obtiene todas las salas"""
     try:
-        salas = Sala.get_all()
+        salas = Sala.get_all() #Obtiene todas las salas 
         return jsonify({
             'success': True,
             'data': salas,
@@ -25,6 +25,8 @@ def get_salas_disponibles(current_user):
     """
     Obtiene salas disponibles para una fecha y turno específicos
     Query params: fecha (YYYY-MM-DD), id_turno
+    Permite al frontend consultar qué salas están disponibles (sin reservas activas) en 
+    un día y turno determinados, según si el usuario es docente, alumno, o posgrado.
     """
     try:
         fecha_str = request.args.get('fecha')
@@ -52,6 +54,7 @@ def get_salas_disponibles(current_user):
                 'message': 'No se pueden buscar salas para fechas pasadas'
             }), 400
         
+        #Filtrado de salas segun el CI
         ci = current_user['ci']
         salas = Sala.get_disponibles(fecha, id_turno, ci)
         
@@ -69,7 +72,7 @@ def get_salas_disponibles(current_user):
 def get_sala_detalle(current_user, nombre_sala, edificio):
     """Obtiene el detalle de una sala específica"""
     try:
-        sala = Sala.get_by_nombre_edificio(nombre_sala, edificio)
+        sala = Sala.get_by_nombre_edificio(nombre_sala, edificio) #obtenemos informacion de la sala
         
         if not sala:
             return jsonify({'success': False, 'message': 'Sala no encontrada'}), 404

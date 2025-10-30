@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
 
-bp = Blueprint("auth", __name__)
+bp = Blueprint("participantes", __name__, url_prefix="/api/participantes")
 
 @bp.route("/auth/register", methods=["POST","OPTIONS"])
 @cross_origin(
