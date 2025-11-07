@@ -55,17 +55,21 @@ def create_app():
     creás un archivo por módulo (por ejemplo routes/auth.py o routes/salas.py) y dentro de él definís rutas agrupadas a un mismo grupo.
     '''
     # Registrar blueprints
-    from .routes import auth, reservas, salas, turnos
+    from .routes import auth, reservas, salas, turnos, reportes
     app.register_blueprint(auth.bp)
     app.register_blueprint(reservas.bp)
     app.register_blueprint(salas.bp)
     app.register_blueprint(turnos.bp)
+    app.register_blueprint(reportes.bp)  
 
 
     # Lista todas las rutas registradas en tu app (útil para debug o revisar si se registraron los endpoints correctamente).
     @app.get("/api/_routes")
     def routes():
+        """Lista todas las rutas disponibles"""
         return jsonify(sorted([str(r) for r in app.url_map.iter_rules()]))
+    
+    
 
     return app
 

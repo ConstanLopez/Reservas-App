@@ -26,7 +26,7 @@ class Auth:
     @staticmethod
     def crear_login(email, password_hash):
         """Crea registro en tabla login en la base de datos"""
-        query = "INSERT INTO login (correo, contraseña) VALUES (%s, %s)"
+        query = "INSERT INTO login (correo, contrasena) VALUES (%s, %s)"
         return execute_query(query, (email, password_hash))
     
     @staticmethod

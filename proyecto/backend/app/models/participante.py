@@ -46,7 +46,7 @@ class Participante:
     def tiene_sancion_activa(ci):
         """Verifica si el participante tiene una sanción activa"""
         query = """
-            SELECT * FROM sancion_partcipante
+            SELECT * FROM sancion_participante
             WHERE ci_participante = %s 
             AND CURDATE() BETWEEN fecha_inicio AND fecha_fin
         """
@@ -57,7 +57,7 @@ class Participante:
     def get_sancion_activa(ci):
         """Obtiene la sanción activa del participante"""
         query = """
-            SELECT * FROM sancion_partcipante
+            SELECT * FROM sancion_participante
             WHERE ci_participante = %s 
             AND CURDATE() BETWEEN fecha_inicio AND fecha_fin
             ORDER BY fecha_fin DESC
@@ -83,7 +83,25 @@ class Participante:
             SELECT COUNT(*) as count 
             FROM participante_programa_academico ppa
             JOIN programa_academico pa ON ppa.nombre_programa = pa.nombre_programa
-            WHERE ppa.ci_participante = %s AND pa.tipo = 'posgrado'
+            WHERE ppa.ci_participante = %s AND pa.tipo = 'posgrado' AND ppa.rol = 'alumno'
         """
         rows = fetch_query(query, (ci,))
         return rows[0]['count'] > 0 if rows else False
+    
+    @staticmethod
+    def get_all():
+        """Obtiene todos los participantes"""
+        query = """
+            SELECT p.ci, p.nombre, p.apellido, p.email,
+                   GROUP_CONCAT(DISTINCT ppa.rol) as roles,
+                   GROUP_CONCAT(DISTINCT ppa.nombre_programa) as programas
+            FROM participante p
+            LEFT JOIN participante_programa_academico ppa ON p.ci = ppa.ci_participante
+            GROUP BY p.ci
+            ORDER BY p.apellido, p.nombre
+        """
+        rows = fetch_query(query)
+        for row in rows:
+            row['roles'] = row['roles'].split(',') if row['roles'] else []
+            row['programas'] = row['programas'].split(',') if row['programas'] else []
+        return rows

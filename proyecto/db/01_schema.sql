@@ -79,7 +79,7 @@ CREATE TABLE reserva_participante (
     FOREIGN KEY (id_reserva) REFERENCES reserva(id_reserva)
 );
 
-CREATE TABLE sancion_partcipante(
+CREATE TABLE sancion_participante(
     ci_participante int NOT NULL,
     fecha_inicio DATE NOT NULL,
     fecha_fin DATE NOT NULL,
