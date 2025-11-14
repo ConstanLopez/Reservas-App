@@ -20,7 +20,7 @@ def register():
         return ('', 204) 
 
     data = request.get_json(silent=True) or {} #Obtenemos el JSON del FRONTEND,  silent=True => evita lanzar error si el JSON no está bien formado, y none como valor por defecto
-    required_fields = ['ci', 'nombre', 'apellido', 'email', 'password'] # campos obligatorios
+    required_fields = ['ci', 'nombre', 'apellido', 'email', 'password','rol','nombre_programa'] # campos obligatorios
     for field in required_fields:
         if not data.get(field): # si falta algun dato requerido se devuelve un error
             return jsonify({'error': f'El campo {field} es requerido'}), 400 #se devuelve un JSON con el campo que falta
@@ -28,7 +28,7 @@ def register():
     #Extrae del JSON de la request los campos requeridos 
     ci = data['ci']; nombre = data['nombre']; apellido = data['apellido']
     email = data['email']; password = data['password']
-    nombre_programa = data.get('nombre_programa'); rol = data.get('rol', 'alumno')
+    nombre_programa = data['nombre_programa']; rol = data['rol'];
 
     #Controla si el ci, o el mail ya estan registrados y el largo de la contraseña
     if Auth.email_existe(email):

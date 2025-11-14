@@ -19,8 +19,8 @@ services:
     env_file:
       - ./backend/.env                      # variables del backend (dentro del contenedor)
     environment:
-      DB_HOST: db                           # dentro de la red docker → host = db, port = 3306
-      DB_PORT: 3306
+      DB_HOST: localhost                           # dentro de la red docker → host = db, port = 3306
+      DB_PORT: 3307
     ports:
       - "5000:5000"
     command: python -m app.main

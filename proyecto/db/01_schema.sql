@@ -2,24 +2,24 @@ CREATE DATABASE IF NOT EXISTS reservas_db CHARACTER SET utf8mb4 COLLATE utf8mb4_
 USE reservas_db;
 
 CREATE TABLE login (
-    correo VARCHAR(50) PRIMARY KEY ,
-    contrasena VARCHAR(50) NOT NULL
+    correo VARCHAR(100) PRIMARY KEY ,
+    contrasena VARCHAR(100) NOT NULL
 );
 CREATE TABLE participante (
     ci INT PRIMARY KEY,
-    nombre VARCHAR(50) NOT NULL,
-    apellido VARCHAR(50) NOT NULL,
-    email VARCHAR(50) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
     FOREIGN KEY (email) REFERENCES login(correo)
 );
 
 CREATE TABLE facultad (
     id_facultad INT PRIMARY KEY,
-    nombre VARCHAR(50) NOT NULL
+    nombre VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE programa_academico (
-    nombre_programa VARCHAR(50) PRIMARY KEY ,
+    nombre_programa VARCHAR(100) PRIMARY KEY ,
     id_facultad INT NOT NULL ,
     tipo ENUM('grado', 'posgrado') NOT NULL,
     FOREIGN KEY (id_facultad) REFERENCES  facultad(id_facultad)
@@ -28,7 +28,7 @@ CREATE TABLE programa_academico (
 CREATE TABLE participante_programa_academico (
     id_alumno_programa INT AUTO_INCREMENT PRIMARY KEY,
     ci_participante INT NOT NULL ,
-    nombre_programa VARCHAR(50) NOT NULL,
+    nombre_programa VARCHAR(100) NOT NULL,
     rol ENUM ('alumno', 'docente') NOT NULL,
     FOREIGN KEY (nombre_programa) REFERENCES programa_academico(nombre_programa),
     FOREIGN KEY (ci_participante) REFERENCES participante(ci)
@@ -36,14 +36,14 @@ CREATE TABLE participante_programa_academico (
 );
 
 CREATE TABLE edificio (
-    nombre_edificio VARCHAR (50) PRIMARY KEY,
-    direccion VARCHAR(50) NOT NULL,
-    departamento VARCHAR(50) NOT NULL
+    nombre_edificio VARCHAR (100) PRIMARY KEY,
+    direccion VARCHAR(100) NOT NULL,
+    departamento VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE sala (
-    nombre_sala VARCHAR(50) NOT NULL,
-    edificio VARCHAR(50) NOT NULL,
+    nombre_sala VARCHAR(100) NOT NULL,
+    edificio VARCHAR(100) NOT NULL,
     capacidad INT NOT NULL,
     tipo_sala ENUM ('libre', 'docente' , 'posgrado') NOT NULL,
     PRIMARY KEY (nombre_sala,edificio),
@@ -60,8 +60,8 @@ CREATE TABLE turno(
 
 CREATE TABLE reserva(
     id_reserva INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_sala VARCHAR(50) NOT NULL,
-    edificio VARCHAR(50) NOT NULL,
+    nombre_sala VARCHAR(100) NOT NULL,
+    edificio VARCHAR(100) NOT NULL,
     fecha DATE NOT NULL,
     id_turno INT NOT NULL,
     estado ENUM('activa', 'cancelada', 'sin asistencia', 'finalizada') NOT NULL,
