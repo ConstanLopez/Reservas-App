@@ -26,8 +26,11 @@ class Auth:
     @staticmethod
     def crear_login(email, password_hash):
         """Crea registro en tabla login en la base de datos"""
-        query = "INSERT INTO login (correo, contraseña) VALUES (%s, %s)"
-        return execute_query(query, (email, password_hash))
+        query = "INSERT INTO login (correo, contrasena) VALUES (%s, %s)"
+        print("ejecutando query")
+        result =  execute_query(query, (email, password_hash))
+        print(f"✅ Resultado execute_query: {result}")
+        return result
     
     @staticmethod
     def crear_participante(ci, nombre, apellido, email):
@@ -38,6 +41,7 @@ class Auth:
         """
         return execute_query(query, (ci, nombre, apellido, email))
     
+   
     @staticmethod
     def asignar_programa(ci, nombre_programa, rol):
         """Asigna programa académico al participante en la base de datos"""
@@ -54,7 +58,7 @@ class Auth:
         query = """
             SELECT 
                 l.correo,
-                l.contraseña as password_hash,
+                l.contrasena as password_hash,
                 p.ci,
                 p.nombre,
                 p.apellido,

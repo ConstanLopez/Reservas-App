@@ -44,10 +44,12 @@ def fetch_query(query, params=None):
 def execute_query(query, params=None):
     conn = get_db_connection() #llamamos a la conexion hacia la db MySQL
     if not conn: # si no conecto
+        print("No se conecto la base")
         return False 
     try:
         cur = conn.cursor() #creamos un cursor asociado a esa conexion
         cur.execute(query, params or ()) #ejecutamos la query con el cursor de esa conexion, esto previene inyeccion SQL ya que no concatena cadenas manulamente, y evalua si se pasaron o no parametros
+        print("Se ejecuto la query")
         conn.commit() # guarda los cambios en la base de datos
         return True # si todo funciono bien devuelve True
     except Error as e:

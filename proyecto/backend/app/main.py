@@ -54,6 +54,10 @@ def create_app():
     En lugar de poner todas las rutas (@app.route) en un solo archivo, 
     creás un archivo por módulo (por ejemplo routes/auth.py o routes/salas.py) y dentro de él definís rutas agrupadas a un mismo grupo.
     '''
+
+
+    
+
     # Registrar blueprints
     from .routes import auth, reservas, salas, turnos
     app.register_blueprint(auth.bp)

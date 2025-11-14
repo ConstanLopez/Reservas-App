@@ -10,7 +10,9 @@ export function Register() {
         apellido: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        nombre_programa: '',
+        rol: ''
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -51,8 +53,8 @@ export function Register() {
     apellido: formData.apellido.trim(),
     email: formData.email.trim(),
     password: formData.password,
-    // nombre_programa: formData.nombre_programa || undefined, // opcional
-    // rol: 'alumno', // opcional
+    nombre_programa: formData.nombre_programa,
+    rol: formData.rol
   };
 
   console.log('payload register →', payload); // 👈 LOG CLAVE
@@ -65,9 +67,9 @@ export function Register() {
 };
 
     return (
-        <div className="position-fixed top-0 start-0 w-100 vh-100 bg-primary-subtle d-flex justify-content-center align-items-center">
-            <div className="text-center" style={{width: '400px'}}>
-                <h1 className="display-4 mb-4">Crear Cuenta</h1>
+        <div className="position-fixed top-0 start-0 w-100 vh-100 bg-primary-subtle d-flex justify-content-center align-items-center overflow-auto">
+            <div className="text-center my-3 py-3" style={{width: '400px'}}>
+                <h1 className="h2 mb-3" >Crear Cuenta</h1>
 
                 {error && <Alert variant="danger">{error}</Alert>}
 
@@ -114,6 +116,40 @@ export function Register() {
                             />
                         </div>
                     </div>
+                    
+
+                    <div className="mb-3">
+                        <label htmlFor="nombre_programa" className="form-label fw-bold">Programa Academico:</label>
+                        <input 
+                            name="nombre_programa"
+                            value={formData.nombre_programa} 
+                            onChange={handleChange} 
+                            type="text" 
+                            className="form-control" 
+                            placeholder="Ingenieria Infórmatica" 
+                            id="nombre_programa"
+                            required
+                        />
+                    </div>
+
+
+                    <div className="mb-3">
+                        <label htmlFor="rol" className="form-label fw-bold">Rol:</label>
+                        <select 
+                            name="rol"
+                            value={formData.rol} 
+                            onChange={handleChange}  
+                            className="form-control" 
+                            placeholder="Alumno, Docente" 
+                            id="rol"
+                            required
+                        > 
+                        <option value=""> Selecciona un Rol</option>
+                        <option value="alumno"> Alumno </option>
+                        <option value="docente" >Docente</option>
+                        </select>
+                    </div>
+
 
                     <div className="mb-3">
                         <label htmlFor="email" className="form-label fw-bold">Email:</label>
@@ -128,7 +164,7 @@ export function Register() {
                             required
                         />
                     </div>
-
+                
                     <div className="mb-3">
                         <label htmlFor="password" className="form-label fw-bold">Contraseña:</label>
                         <input 
