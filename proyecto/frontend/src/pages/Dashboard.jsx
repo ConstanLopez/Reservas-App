@@ -1,18 +1,23 @@
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import {useNavigate} from 'react-router-dom'
 import CrearReserva from './CrearReserva';
 import MisReservas from './MisReservas';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
 export default function Dashboard() {
   const [vistaActual, setVistaActual] = useState('inicio');
-
+  const {user, logout} = useAuth();
+  const navigate = useNavigate();
   // Simulación de usuario - en tu caso real viene del AuthContext
-  const user = {
+  /*const user = {
     nombre: 'Usuario',
     email: 'usuario@ucu.edu.uy'
-  };
+  };*/
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
+    logout();
+    navigate('/login');
   };
 
   const renderVista = () => {
@@ -119,12 +124,6 @@ export default function Dashboard() {
                   👤 {user?.nombre || 'Usuario'}
                 </a>
                 <ul className="dropdown-menu dropdown-menu-end">
-                  <li>
-                    <span className="dropdown-item-text">
-                      <small className="text-muted">{user?.email}</small>
-                    </span>
-                  </li>
-                  <li><hr className="dropdown-divider" /></li>
                   <li>
                     <button className="dropdown-item text-danger" onClick={handleLogout}>
                       Cerrar Sesión
