@@ -138,7 +138,7 @@ export default function Dashboard() {
       </nav>
 
       {/* Contenido Principal */}
-      <div className="container py-4">
+      <div className="container-fluid py-4">
         {renderVista()}
       </div>
 

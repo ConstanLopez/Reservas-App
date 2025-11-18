@@ -3,9 +3,13 @@ from app.database import fetch_query
 class Turno:
     @staticmethod
     def get_all():
-        """Obtiene todos los turnos ordenados por hora de inicio, para poder crear una reserva"""
+        """Obtiene todos los turnos ordenados por hora de inicio"""
         query = """
-            SELECT * FROM turno
+            SELECT 
+                id_turno,
+                TIME_FORMAT(hora_inicio, '%H:%i') AS hora_inicio,
+                TIME_FORMAT(hora_fin, '%H:%i')   AS hora_fin
+            FROM turno
             ORDER BY hora_inicio
         """
         return fetch_query(query)
@@ -19,10 +23,12 @@ class Turno:
     
     @staticmethod
     def get_disponibles_para_sala(fecha, nombre_sala, edificio):
-        """Obtiene turnos disponibles para una sala en una fecha específica mostrando todos los turnos del día, marcando cuáles están libres o ocupados"""
         query = """
-            SELECT t.*,
-                   CASE WHEN r.id_reserva IS NULL THEN 1 ELSE 0 END as disponible
+            SELECT 
+                t.id_turno,
+                TIME_FORMAT(t.hora_inicio, '%H:%i') AS hora_inicio,
+                TIME_FORMAT(t.hora_fin, '%H:%i')   AS hora_fin,
+                CASE WHEN r.id_reserva IS NULL THEN 1 ELSE 0 END as disponible
             FROM turno t
             LEFT JOIN reserva r ON t.id_turno = r.id_turno
                                 AND r.nombre_sala = %s

@@ -1,5 +1,6 @@
 from app.database import fetch_query, execute_query
-from datetime import date
+from datetime import date,timedelta
+from app.models.participante import Participante
 
 class Reserva:
     @staticmethod
@@ -12,7 +13,8 @@ class Reserva:
                    rp.fecha_solicitud_reserva, rp.asistencia,
                    s.capacidad, s.tipo_sala,
                    e.direccion, e.departamento,
-                   t.hora_inicio, t.hora_fin,
+                   TIME_FORMAT(t.hora_inicio, '%H:%i') AS hora_inicio,
+                    TIME_FORMAT(t.hora_fin, '%H:%i')   AS hora_fin,
                    p.nombre, p.apellido
             FROM reserva r
             JOIN reserva_participante rp ON r.id_reserva = rp.id_reserva
@@ -34,7 +36,8 @@ class Reserva:
                    rp.ci_participante, rp.fecha_solicitud_reserva, rp.asistencia,
                    s.capacidad, s.tipo_sala,
                    e.direccion, e.departamento,
-                   t.hora_inicio, t.hora_fin,
+                   TIME_FORMAT(t.hora_inicio, '%H:%i') AS hora_inicio,
+                    TIME_FORMAT(t.hora_fin, '%H:%i')   AS hora_fin,
                    p.nombre, p.apellido, p.email
             FROM reserva r
             JOIN reserva_participante rp ON r.id_reserva = rp.id_reserva
@@ -62,7 +65,56 @@ class Reserva:
         puede, mensaje = Sala.puede_reservar(nombre_sala, edificio, ci_participante)
         if not puede:
             return None, mensaje
-        
+
+        #Flags para ver si aplica la regla de limite horario para las reservas
+        es_docente = Participante.es_docente(ci_participante)
+        es_posgrado = Participante.es_posgrado(ci_participante)
+        sala = Sala.get_by_nombre_edificio(nombre_sala, edificio)
+
+        aplica_limites = True 
+
+        if sala:
+            tipo_sala = sala['tipo_sala']  # 'libre', 'docente', 'posgrado'
+            
+            # Si es docente o posgrado Y está usando sala exclusiva (docente/posgrado),
+            # NO se aplican los límites de 2 horas ni de 3 reservas.
+            if (es_docente or es_posgrado) and tipo_sala in ('docente', 'posgrado'):
+                aplica_limites = False
+
+        # Si le aplican los límites, controlamos cuántas horas tiene ya reservadas ese día
+        if aplica_limites:
+            # Traemos todas las reservas  de este participante
+            reservas_participante = Reserva.get_by_participante(ci_participante)
+
+            # Filtramos solo las reservas de la misma fecha  y que esten  activas
+            reservas_mismo_dia = [
+                r for r in reservas_participante
+                if r['fecha'] == fecha and r['estado'] == 'activa'
+            ]
+
+            # Cada reserva  vale 1 hora (1 turno = 1 hora)
+            horas_reservadas = len(reservas_mismo_dia)
+
+            # Si ya tiene 2 horas, No se puede realizar una tercera
+            if horas_reservadas >= 2:
+                return None, "No puedes reservar más de 2 horas de sala en el mismo día."
+            
+            weekday = fecha.weekday()
+            week_start = fecha - timedelta(days=weekday)        # lunes de esa semana
+            week_end = week_start + timedelta(days=6)           # domingo de esa semana
+
+            # Filtramos las reservas de ese participante que caen en esa semana y están activas
+            reservas_misma_semana = [
+                r for r in reservas_participante
+                if (week_start <= r['fecha'] <= week_end) and r['estado'] == 'activa'
+            ]
+
+            reservas_activas_semana = len(reservas_misma_semana)
+
+            # Si ya tiene 3 reservas activas en esa semana, no permitimos una nueva
+            if reservas_activas_semana >= 3:
+                return None, "No puedes tener más de 3 reservas activas en la misma semana."
+
         # Verificar que la sala esté disponible en ese turno
         query_check = """
             SELECT COUNT(*) as count FROM reserva
@@ -82,8 +134,14 @@ class Reserva:
             return None, "Error al crear la reserva"
         
         # Obtener el ID de la reserva recién creada
-        query_last_id = "SELECT LAST_INSERT_ID() as id"
-        rows = fetch_query(query_last_id)
+        query_last_id = """
+            SELECT id_reserva AS id
+            FROM reserva
+            WHERE nombre_sala = %s AND edificio = %s AND fecha = %s AND id_turno = %s
+            ORDER BY id_reserva DESC
+            LIMIT 1
+        """
+        rows = fetch_query(query_last_id, (nombre_sala, edificio, fecha, id_turno))
         if not rows:
             return None, "Error al obtener ID de reserva"
         
@@ -135,7 +193,8 @@ class Reserva:
             SELECT r.*, 
                    s.capacidad, s.tipo_sala,
                    e.direccion, e.departamento,
-                   t.hora_inicio, t.hora_fin
+                   TIME_FORMAT(t.hora_inicio, '%H:%i') AS hora_inicio,
+                    TIME_FORMAT(t.hora_fin, '%H:%i')   AS hora_fin,
             FROM reserva r
             JOIN reserva_participante rp ON r.id_reserva = rp.id_reserva
             JOIN sala s ON r.nombre_sala = s.nombre_sala AND r.edificio = s.edificio
@@ -147,3 +206,60 @@ class Reserva:
             ORDER BY r.fecha, t.hora_inicio
         """
         return fetch_query(query, (ci_participante,))
+    
+    @staticmethod
+    def registrar_asistencia(id_reserva, asistencias):
+        """
+        Actualiza asistencia de todos los participantes de una reserva.
+        Si nadie asistió, genera sanciones de 2 meses para todos.
+        """
+        # 1) Traer todos los participantes de esa reserva
+        query_participantes = """
+            SELECT ci_participante
+            FROM reserva_participante
+            WHERE id_reserva = %s
+        """
+        rows = fetch_query(query_participantes, (id_reserva,))
+        if not rows:
+            return False, "No se encontraron participantes para esta reserva."
+
+        # Convertir la lista de asistencias del request a algo fácil de consultar
+        # ejemplo: {"12345678": True, "87654321": False}
+        mapa_asistencias = {a["ci"]: bool(a.get("asistio", False)) for a in asistencias}
+
+        # 2) Actualizar asistencia en reserva_participante
+        hubo_asistencia = False
+        for row in rows:
+            ci = row["ci_participante"]
+            asistio = mapa_asistencias.get(ci, False)  # si no vino en el JSON, asumimos False
+
+            query_update = """
+                UPDATE reserva_participante
+                SET asistencia = %s
+                WHERE id_reserva = %s AND ci_participante = %s
+            """
+            execute_query(query_update, (1 if asistio else 0, id_reserva, ci))
+
+            if asistio:
+                hubo_asistencia = True
+
+        # 3) Si al menos uno asistió, no hay sanciones
+            if hubo_asistencia:
+                return True, "Asistencia registrada correctamente. No se generaron sanciones."
+
+        # 4) Si nadie asistió → sanción de 2 meses para todos los participantes
+        from datetime import date, timedelta
+        fecha_inicio = date.today()
+        # Súper simple: 60 días como aproximación a 2 meses
+        fecha_fin = fecha_inicio + timedelta(days=60)
+
+        for row in rows:
+            ci = row["ci_participante"]
+
+            query_sancion = """
+                INSERT INTO sancion_participante (ci_participante, fecha_inicio, fecha_fin)
+                VALUES (%s, %s, %s)
+            """
+            execute_query(query_sancion, (ci, fecha_inicio, fecha_fin))
+
+        return True, "Asistencia registrada. No asistió nadie, se generaron sanciones por 2 meses."

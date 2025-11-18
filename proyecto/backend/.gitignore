@@ -25,3 +25,36 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
+
+
+
+
+
+
+
+Para iniciar el proyecto:
+
+Levantar el docker compose con los siguientes comandos, en la carpeta donde esta el compose con los siguientes comandos
+
+# Build + up (usa el compose correcto)
+docker compose -f "docker-compose reservAPP.yml" up -d db
+
+
+# Backend
+  # (Para la primera vez): pip install -r requirements.txt
+
+  
+Para prender el backend se tiene que estar dentro de la carpeta backend y hacer:
+python -m app.main
+
+# Frontend:
+# (Para la primera vez) : npm install
+
+Para arrancarlo dentro de la carpeta frontend hacer : npm run dev
+
+#  Claves para el Data Grip
+Host: localhost
+Port: 3307    
+User: appuser
+Password: apppass
+Database: reservas_db

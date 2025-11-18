@@ -42,6 +42,7 @@ def fetch_query(query, params=None):
 
 '''Esta  funcion sirve para modificar datos INSERT, UPDATE DELETE'''
 def execute_query(query, params=None):
+    print("Conectando a DB:", Config.DB_HOST, Config.DB_PORT)
     conn = get_db_connection() #llamamos a la conexion hacia la db MySQL
     if not conn: # si no conecto
         print("No se conecto la base")
