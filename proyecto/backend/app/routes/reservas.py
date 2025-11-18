@@ -3,6 +3,7 @@ from app.middleware.auth_middleware import token_required
 from app.models.reserva import Reserva
 from app.models.sala import Sala
 from app.models.turno import Turno
+from app.models.participante import Participante
 from datetime import datetime
 
 #Definimos el conjunto de rutas agrupadas para las rutas de reservas 
@@ -69,7 +70,6 @@ def crear_reserva(current_user):
     """Crea una nueva reserva"""
     try:
         data = request.get_json() #recibimos el json de la request
-        
         # Validar campos requeridos
         required_fields = ['nombre_sala', 'edificio', 'fecha', 'id_turno']
         for field in required_fields:
@@ -84,6 +84,7 @@ def crear_reserva(current_user):
         fecha_str = data['fecha']
         id_turno = data['id_turno']
         ci = current_user['ci']
+        
         
         # Validar formato de fecha
         try:
