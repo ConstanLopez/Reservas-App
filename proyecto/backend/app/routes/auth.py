@@ -68,37 +68,60 @@ def register():
 
 @bp.route('/login', methods=['POST', 'OPTIONS'])
 @cross_origin(origins=ORIGINS,
-              methods=['POST','OPTIONS'],
-              allow_headers=['Content-Type','Authorization'],
+              methods=['POST', 'OPTIONS'],
+              allow_headers=['Content-Type', 'Authorization'],
               expose_headers=['Authorization'])
 def login():
     if request.method == 'OPTIONS':
         return ('', 204)
 
     data = request.get_json(silent=True) or {}
-    if not data.get('email') or not data.get('password'): #Chequea que el mail y la contraseña hayan sido ingresados
+    if not data.get('email') or not data.get('password'):
         return jsonify({'error': 'Email y contraseña son requeridos'}), 400
 
     try:
-        usuario = Auth.obtener_usuario_por_email(data['email']) #Busca al usuario por email
-        if not usuario or not verify_password(data['password'], usuario['password_hash']): #si no hay usuario o la contraseña no es correcta devuelve error
-            return jsonify({'error': 'Credenciales inválidas'}), 401 
+        # 1) Buscar usuario en login + participante (incluye p.rol)
+        usuario = Auth.obtener_usuario_por_email(data['email'])
 
-        roles = Auth.obtener_roles_usuario(usuario['ci']) #obtiene el rol del usuario
-        rol = roles[0]['rol'] if roles else 'alumno' # A revisar, pero si tiene mas de uno agarra el primero, sino tiene se asigna por defecto
-        tipo_programa = roles[0]['tipo'] if roles else 'grado' # Se agarra el primero, sino tiene es por defecto grado
+        # 2) Validar contraseña
+        if not usuario or not verify_password(data['password'], usuario['password_hash']):
+            return jsonify({'error': 'Credenciales inválidas'}), 401
 
-        #payload JWT
-        user_data = {'correo': usuario['correo'], 'ci': usuario['ci'], 'nombre': usuario['nombre'],
-                     'apellido': usuario['apellido'], 'rol': rol, 'tipo_programa': tipo_programa}
+        # 3) Roles académicos (lo que ya tenías)
+        roles_academicos = Auth.obtener_roles_usuario(usuario['ci'])
+        rol_academico = roles_academicos[0]['rol'] if roles_academicos else 'alumno'
+        tipo_programa = roles_academicos[0]['tipo'] if roles_academicos else 'grado'
+
+        # 4) Rol de sistema (para admin / usuario) -> viene de la tabla participante
+        rol_sistema = usuario.get('rol', 'usuario')  # p.rol, default 'usuario'
+
+        # 5) Payload para el JWT
+        user_data = {
+            'correo': usuario['correo'],
+            'ci': usuario['ci'],
+            'nombre': usuario['nombre'],
+            'apellido': usuario['apellido'],
+            'rol': rol_sistema,             # 👈 rol de sistema
+            'tipo_programa': tipo_programa,
+            'rol_academico': rol_academico  # opcional, por si lo necesitás luego
+        }
         token = generate_token(user_data)
 
+        # 6) Respuesta al frontend
         return jsonify({
             'message': 'Login exitoso',
             'token': token,
-            'user': {'ci': usuario['ci'], 'nombre': usuario['nombre'], 'apellido': usuario['apellido'],
-                     'email': usuario['correo'], 'rol': rol, 'tipo_programa': tipo_programa}
+            'user': {
+                'ci': usuario['ci'],
+                'nombre': usuario['nombre'],
+                'apellido': usuario['apellido'],
+                'email': usuario['correo'],
+                'rol': rol_sistema,              # 👈 acá el front ve 'admin' o 'usuario'
+                'tipo_programa': tipo_programa,
+                'rol_academico': rol_academico
+            }
         }), 200
+
     except Exception as e:
         print(f"Error en login: {e}")
         return jsonify({'error': 'Error al iniciar sesión'}), 500

@@ -1,31 +1,39 @@
 import { useState } from 'react';
+import CrearReserva from '../pages/CrearReserva';
+import MisReservas from '../pages/MisReservas';
+import AdminPanel from '../pages/Auth/AdminPanel';
 import { useAuth } from '../context/AuthContext';
-import {useNavigate} from 'react-router-dom'
-import CrearReserva from './CrearReserva';
-import MisReservas from './MisReservas';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 export default function Dashboard() {
   const [vistaActual, setVistaActual] = useState('inicio');
-  const {user, logout} = useAuth();
-  const navigate = useNavigate();
-  // Simulación de usuario - en tu caso real viene del AuthContext
-  /*const user = {
-    nombre: 'Usuario',
-    email: 'usuario@ucu.edu.uy'
-  };*/
+  const { user, logout } = useAuth();
+
+  const esAdmin = user?.rol === 'admin';
 
   const handleLogout = () => {
+    // usamos el logout del contexto (borra token y user)
     logout();
-    navigate('/login');
+    window.location.href = '/login';
   };
 
   const renderVista = () => {
+    // Si es admin, siempre mostramos el panel de administración
+    if (esAdmin) {
+      return <AdminPanel />;
+    }
+
+    // Si NO es admin, flujo normal de reservas
     switch (vistaActual) {
       case 'mis-reservas':
         return <MisReservas />;
+
       case 'crear-reserva':
-        return <CrearReserva onReservaCreada={() => setVistaActual('mis-reservas')} />;
+        return (
+          <CrearReserva
+            onReservaCreada={() => setVistaActual('mis-reservas')}
+          />
+        );
+
       case 'inicio':
       default:
         return (
@@ -36,7 +44,7 @@ export default function Dashboard() {
             </p>
             <div className="row justify-content-center g-4">
               <div className="col-md-4">
-                <div 
+                <div
                   className="card h-100 shadow-sm cursor-pointer hover-shadow"
                   onClick={() => setVistaActual('crear-reserva')}
                   style={{ cursor: 'pointer' }}
@@ -51,7 +59,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="col-md-4">
-                <div 
+                <div
                   className="card h-100 shadow-sm cursor-pointer hover-shadow"
                   onClick={() => setVistaActual('mis-reservas')}
                   style={{ cursor: 'pointer' }}
@@ -79,53 +87,88 @@ export default function Dashboard() {
           <span className="navbar-brand mb-0 h1">
             🏫 Sistema de Reservas UCU
           </span>
-          <button 
-            className="navbar-toggler" 
-            type="button" 
-            data-bs-toggle="collapse" 
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
             data-bs-target="#navbarNav"
           >
             <span className="navbar-toggler-icon"></span>
           </button>
+
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto">
-              <li className="nav-item">
-                <button 
-                  className={`nav-link btn btn-link ${vistaActual === 'inicio' ? 'active' : ''}`}
-                  onClick={() => setVistaActual('inicio')}
-                >
-                  Inicio
-                </button>
-              </li>
-              <li className="nav-item">
-                <button 
-                  className={`nav-link btn btn-link ${vistaActual === 'crear-reserva' ? 'active' : ''}`}
-                  onClick={() => setVistaActual('crear-reserva')}
-                >
-                  Nueva Reserva
-                </button>
-              </li>
-              <li className="nav-item">
-                <button 
-                  className={`nav-link btn btn-link ${vistaActual === 'mis-reservas' ? 'active' : ''}`}
-                  onClick={() => setVistaActual('mis-reservas')}
-                >
-                  Mis Reservas
-                </button>
-              </li>
+              {/* Menú distinto según sea admin o no */}
+              {!esAdmin && (
+                <>
+                  <li className="nav-item">
+                    <button
+                      className={`nav-link btn btn-link ${
+                        vistaActual === 'inicio' ? 'active' : ''
+                      }`}
+                      onClick={() => setVistaActual('inicio')}
+                    >
+                      Inicio
+                    </button>
+                  </li>
+                  <li className="nav-item">
+                    <button
+                      className={`nav-link btn btn-link ${
+                        vistaActual === 'crear-reserva' ? 'active' : ''
+                      }`}
+                      onClick={() => setVistaActual('crear-reserva')}
+                    >
+                      Nueva Reserva
+                    </button>
+                  </li>
+                  <li className="nav-item">
+                    <button
+                      className={`nav-link btn btn-link ${
+                        vistaActual === 'mis-reservas' ? 'active' : ''
+                      }`}
+                      onClick={() => setVistaActual('mis-reservas')}
+                    >
+                      Mis Reservas
+                    </button>
+                  </li>
+                </>
+              )}
+
+              {esAdmin && (
+                <li className="nav-item">
+                  <span className="nav-link active">
+                    Panel de Administración
+                  </span>
+                </li>
+              )}
+
+              {/* Dropdown usuario */}
               <li className="nav-item dropdown">
-                <a 
-                  className="nav-link dropdown-toggle" 
-                  href="#" 
-                  id="userDropdown" 
-                  role="button" 
+                <a
+                  className="nav-link dropdown-toggle"
+                  href="#"
+                  id="userDropdown"
+                  role="button"
                   data-bs-toggle="dropdown"
                 >
                   👤 {user?.nombre || 'Usuario'}
                 </a>
                 <ul className="dropdown-menu dropdown-menu-end">
                   <li>
-                    <button className="dropdown-item text-danger" onClick={handleLogout}>
+                    <span className="dropdown-item-text">
+                      <small className="text-muted">
+                        {user?.email || 'usuario@ucu.edu.uy'}
+                      </small>
+                    </span>
+                  </li>
+                  <li>
+                    <hr className="dropdown-divider" />
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item text-danger"
+                      onClick={handleLogout}
+                    >
                       Cerrar Sesión
                     </button>
                   </li>

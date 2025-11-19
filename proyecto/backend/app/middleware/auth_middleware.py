@@ -31,14 +31,14 @@ def token_required(f): #exige que el usuario tenga este autneticado con un JWT v
     return decorated
 
 def admin_required(f):
-    """Decorador para rutas que requieren rol de docente/admin"""
+    """Decorador para rutas que requieren rol de administrador"""
     @wraps(f)
+    @token_required
     def decorated(*args, **kwargs):
-        if not hasattr(request, 'user'):
-            return jsonify({'error': 'No autorizado'}), 403
+        current_user = kwargs.get('current_user')
         
-        if request.user.get('rol') != 'docente': #verifica el rol de docente 
-            return jsonify({'error': 'Requiere permisos de docente'}), 403
+        if not current_user or current_user.get('rol') != 'admin':
+            return jsonify({'error': 'Acceso solo para administradores'}), 403
         
         return f(*args, **kwargs)
     

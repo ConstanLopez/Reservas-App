@@ -63,7 +63,8 @@ class Auth:
                 p.ci,
                 p.nombre,
                 p.apellido,
-                p.email
+                p.email,
+                p.rol
             FROM login l
             INNER JOIN participante p ON l.correo = p.email
             WHERE l.correo = %s
