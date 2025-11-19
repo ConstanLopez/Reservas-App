@@ -1,4 +1,4 @@
-from app.database import fetch_query
+from app.database import fetch_query,execute_query
 
 class Participante:
     @staticmethod
@@ -87,3 +87,47 @@ class Participante:
         """
         rows = fetch_query(query, (ci,))
         return rows[0]['count'] > 0 if rows else False
+
+    
+    @staticmethod
+    def crear_por_admin(data):
+        try:
+            query = """INSERT INTO participante (ci, nombre, apellido, email, rol, password_hash)
+                    VALUES (%s, %s, %s, %s, %s, %s)"""
+            execute_query(query, (data['ci'], data['nombre'], data['apellido'],
+                                data['email'], data['rol'], data['password_hash'])) 
+            return True, "Participante creado exitosamente"
+        except Exception as e:
+            return None, str(e)
+
+    @staticmethod
+    def actualizar_por_admin(ci, data):
+        fields = []
+        values = []
+        for key in data:
+            fields.append(f"{key} = %s")
+            values.append(data[key])
+        values.append(ci)
+        query = f"UPDATE participante SET {', '.join(fields)} WHERE ci = %s"
+        return execute_query(query), "Participante actualizado correctamente"
+
+    @staticmethod
+    def eliminar_por_admin(ci):
+        query = "DELETE FROM participante WHERE ci = %s"
+        return execute_query(query), "Participante eliminado"
+    
+    @staticmethod
+    def get_all():
+        query = """
+            SELECT p.ci, p.nombre, p.apellido, p.email, p.rol,
+                   GROUP_CONCAT(DISTINCT ppa.rol) as roles,
+                   GROUP_CONCAT(DISTINCT ppa.nombre_programa) as programas
+            FROM participante p
+            LEFT JOIN participante_programa_academico ppa ON p.ci = ppa.ci_participante
+            GROUP BY p.ci
+        """
+        rows = fetch_query(query)
+        for participante in rows:
+            participante['roles'] = participante['roles'].split(',') if participante['roles'] else []
+            participante['programas'] = participante['programas'].split(',') if participante['programas'] else []
+        return rows

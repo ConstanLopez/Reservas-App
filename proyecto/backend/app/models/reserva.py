@@ -263,3 +263,45 @@ class Reserva:
             execute_query(query_sancion, (ci, fecha_inicio, fecha_fin))
 
         return True, "Asistencia registrada. No asistió nadie, se generaron sanciones por 2 meses."
+    
+    @staticmethod
+    def actualizar_por_admin(id_reserva, data):
+        campos, valores = [], []
+        for key, val in data.items():
+            campos.append(f"{key} = %s")
+            valores.append(val)
+        valores.append(id_reserva)
+        query = f"UPDATE reserva SET {', '.join(campos)} WHERE id_reserva = %s"
+        ok = execute_query(query, tuple(valores))
+        return ok, "Reserva actualizada correctamente"
+
+    @staticmethod
+    def cancelar_por_admin(id_reserva):
+        query = "UPDATE reserva SET estado = 'cancelada_admin' WHERE id_reserva = %s"
+        return execute_query(query, (id_reserva,)), "Reserva cancelada por administrador"
+    
+    @staticmethod
+    def eliminar_por_admin(id_reserva):
+        query = "DELETE FROM reserva WHERE id_reserva = %s"
+        return execute_query(query, (id_reserva,)), "Reserva eliminada por administrador"
+        
+    @staticmethod
+    def get_all():
+        """Obtiene todas las reservas con información detallada"""
+        query = """
+            SELECT r.*, 
+                   rp.ci_participante, rp.fecha_solicitud_reserva, rp.asistencia,
+                   s.capacidad, s.tipo_sala,
+                   e.direccion, e.departamento,
+                   TIME_FORMAT(t.hora_inicio, '%H:%i') AS hora_inicio,
+                    TIME_FORMAT(t.hora_fin, '%H:%i')   AS hora_fin,
+                   p.nombre, p.apellido, p.email
+            FROM reserva r
+            JOIN reserva_participante rp ON r.id_reserva = rp.id_reserva
+            JOIN sala s ON r.nombre_sala = s.nombre_sala AND r.edificio = s.edificio
+            JOIN edificio e ON s.edificio = e.nombre_edificio
+            JOIN turno t ON r.id_turno = t.id_turno
+            JOIN participante p ON rp.ci_participante = p.ci
+            ORDER BY r.fecha DESC, t.hora_inicio DESC
+        """
+        return fetch_query(query)

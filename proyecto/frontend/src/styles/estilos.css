@@ -1,0 +1,64 @@
+/* ========= PALETA UCU ========= */
+:root {
+  --ucu-blue-dark: #003366;
+  --ucu-blue:      #0056A6;
+  --ucu-blue-light:#E6F0FA;
+}
+
+/* ========= FONDO PANTALLA (bg-primary-subtle) ========= */
+/* Esto cambia el fondo celestito de tus pantallas Login/Register */
+.bg-primary-subtle {
+  background: linear-gradient(180deg, #0056A6 0%, #003366 100%) !important;
+}
+
+/* ========= BOTÓN PRINCIPAL (btn-dark) ========= */
+/* Tus botones usan btn-dark, los volvemos azul UCU */
+.btn-dark {
+  background-color: var(--ucu-blue) !important;
+  border-color: var(--ucu-blue-dark) !important;
+}
+
+.btn-dark:hover,
+.btn-dark:focus {
+  background-color: var(--ucu-blue-dark) !important;
+  border-color: var(--ucu-blue-dark) !important;
+}
+
+/* ========= TÍTULOS ========= */
+/* Para que "Reservas APP" y "Crear Cuenta" vayan en azul oscuro */
+h1, .h1, .h2 {
+  color: var(--ucu-blue-light) !important;
+}
+
+/* ========= INPUTS EN FOCUS ========= */
+.form-control:focus {
+  border-color: var(--ucu-blue) !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 86, 166, 0.25) !important;
+}
+
+/* ========= LINKS ========= */
+a {
+  color: var(--ucu-blue-light) !important;
+}
+
+a:hover {
+  color: var(--ucu-blue-dark) !important;
+  text-decoration: underline;
+}
+
+/* ========= TEXTOS SUAVES (text-muted) ========= */
+.text-muted {
+  color: #ffffffcc !important; /* blanco con leve transparencia */
+}
+
+/* TIPOGRAFÍA GLOBAL */
+body, input, button, label, p, a, h1, h2, h3, h4 {
+  font-family: 'Lato', sans-serif !important;
+  color: var(--ucu-blue-light)
+}
+
+
+/* CENTRAR EL CONTENIDO MÁS ARRIBA (opcional pero queda mejor) */
+.position-fixed {
+  padding-top: 40px;
+}

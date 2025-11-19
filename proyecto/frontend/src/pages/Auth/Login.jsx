@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Alert } from 'react-bootstrap';
+import '../../styles/estilos.css'; 
 import { useAuth } from '../../context/AuthContext';
 
 export function Login() {
@@ -72,7 +73,7 @@ export function Login() {
                 </form>
 
                 <div className="mt-3">
-                    <p className="text-muted">
+                    <p className="p">
                         ¿No tienes cuenta? <a href="/register">Regístrate</a>
                     </p>
                 </div>

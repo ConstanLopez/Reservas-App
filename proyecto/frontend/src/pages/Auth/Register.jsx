@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Alert } from 'react-bootstrap';
+import '../../styles/estilos.css'; 
 import { useAuth } from '../../context/AuthContext';
 
 export function Register() {
@@ -203,7 +204,7 @@ export function Register() {
                 </form>
 
                 <div className="mt-3">
-                    <p className="text-muted">
+                    <p className="p">
                         ¿Ya tienes cuenta? <a href="/login">Inicia sesión</a>
                     </p>
                 </div>

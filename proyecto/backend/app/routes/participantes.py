@@ -18,3 +18,5 @@ def register():
     if not {"email","password"}.issubset(data):
         return jsonify({"error":"Faltan campos"}), 400
     return jsonify({"message":"Usuario creado"}), 201
+
+
