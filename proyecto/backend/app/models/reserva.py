@@ -1,7 +1,7 @@
 from app.database import fetch_query, execute_query
 from datetime import date,timedelta
 from app.models.participante import Participante
-
+from app.models.sala import Sala
 class Reserva:
     @staticmethod
     def get_by_participante(ci_participante, incluir_canceladas=False):
