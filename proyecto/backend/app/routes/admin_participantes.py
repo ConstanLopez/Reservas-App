@@ -44,6 +44,7 @@ def crear_participante(current_user):
         return jsonify({'success': False, 'message': str(e)}), 500
 
 # PUT: actualizar datos o rol
+# Modifica nombre, apellido, email o rol de un participante
 @bp.put('/<ci>')
 @admin_required
 def actualizar_participante(current_user, ci):
@@ -56,6 +57,7 @@ def actualizar_participante(current_user, ci):
         return jsonify({'success': False, 'message': str(e)}), 500
 
 # DELETE: eliminar participante
+# Elimina un participante y sus datos de login asociados
 @bp.delete('/<ci>')
 @admin_required
 def eliminar_participante(current_user, ci):

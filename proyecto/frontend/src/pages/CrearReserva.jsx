@@ -45,7 +45,7 @@ export default function CrearReserva({ onReservaCreada }) {
       setLoading(true);
       setError(null);
       const response = await getSalasDisponibles(fecha, turnoSeleccionado.id_turno);
-      
+
       if (response.success) {
         setSalasDisponibles(response.data);
         if (response.data.length === 0) {
@@ -68,7 +68,7 @@ export default function CrearReserva({ onReservaCreada }) {
     try {
       setLoading(true);
       setError(null);
-      
+
       const reservaData = {
         nombre_sala: salaSeleccionada.nombre_sala,
         edificio: salaSeleccionada.edificio,
@@ -77,7 +77,7 @@ export default function CrearReserva({ onReservaCreada }) {
       };
 
       const response = await crearReserva(reservaData);
-      
+
       if (response.success) {
         alert('¡Reserva creada exitosamente!');
         // Reiniciar formulario
@@ -86,7 +86,7 @@ export default function CrearReserva({ onReservaCreada }) {
         setTurnoSeleccionado(null);
         setSalaSeleccionada(null);
         setSalasDisponibles([]);
-        
+
         if (onReservaCreada) {
           onReservaCreada();
         }
@@ -111,8 +111,8 @@ export default function CrearReserva({ onReservaCreada }) {
   };
 
   const renderPaso1 = () => (
-    <div className="card">
-      <div className="card-header bg-primary text-white">
+    <div className="card" style={{backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #0056A6'}}>
+      <div className="card-header text-white" style={{backgroundColor: '#0056A6'}}>
         <h5 className="mb-0">Paso 1: Selecciona fecha y turno</h5>
       </div>
       <div className="card-body">
@@ -124,7 +124,7 @@ export default function CrearReserva({ onReservaCreada }) {
         )}
 
         <div className="mb-4">
-          <label htmlFor="fecha" className="form-label fw-bold">
+          <label htmlFor="fecha" className="form-label fw-bold" style={{color: '#003366'}}>
             📅 Fecha de la reserva
           </label>
           <input
@@ -134,23 +134,27 @@ export default function CrearReserva({ onReservaCreada }) {
             value={fecha}
             onChange={(e) => setFecha(e.target.value)}
             min={new Date().toISOString().split('T')[0]}
+            style={{borderColor: '#0056A6'}}
           />
         </div>
 
         <div className="mb-4">
-          <label className="form-label fw-bold">🕐 Turno</label>
+          <label className="form-label fw-bold" style={{color: '#003366'}}>🕐 Turno</label>
           <div className="row g-3">
             {turnos.map((turno) => (
               <div key={turno.id_turno} className="col-md-6">
                 <div
-                  className={`card cursor-pointer ${turnoSeleccionado?.id_turno === turno.id_turno ? 'border-primary border-2 bg-light' : ''}`}
+                  className={`card cursor-pointer ${turnoSeleccionado?.id_turno === turno.id_turno ? 'border-2 bg-light' : ''}`}
                   onClick={() => setTurnoSeleccionado(turno)}
-                  style={{ cursor: 'pointer' }}
+                  style={{
+                    cursor: 'pointer',
+                    borderColor: turnoSeleccionado?.id_turno === turno.id_turno ? '#0056A6' : '#dee2e6'
+                  }}
                 >
                   <div className="card-body text-center">
-                    <h6 className="mb-1">{turno.hora_inicio} - {turno.hora_fin}</h6>
+                    <h6 className="mb-1" style={{color: '#003366'}}>{turno.hora_inicio} - {turno.hora_fin}</h6>
                     {turnoSeleccionado?.id_turno === turno.id_turno && (
-                      <small className="text-primary">✓ Seleccionado</small>
+                      <small style={{color: '#0056A6'}}>✓ Seleccionado</small>
                     )}
                   </div>
                 </div>
@@ -160,7 +164,8 @@ export default function CrearReserva({ onReservaCreada }) {
         </div>
 
         <button
-          className="btn btn-primary btn-lg w-100"
+          className="btn btn-lg w-100"
+          style={{backgroundColor: '#0056A6', color: 'white', borderColor: '#003366'}}
           onClick={buscarSalasDisponibles}
           disabled={!fecha || !turnoSeleccionado || loading}
         >
@@ -178,8 +183,8 @@ export default function CrearReserva({ onReservaCreada }) {
   );
 
   const renderPaso2 = () => (
-    <div className="card">
-      <div className="card-header bg-primary text-white">
+    <div className="card" style={{backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #0056A6'}}>
+      <div className="card-header text-white" style={{backgroundColor: '#0056A6'}}>
         <h5 className="mb-0">Paso 2: Selecciona una sala</h5>
         <small>Fecha: {new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES')} | Turno: {turnoSeleccionado.hora_inicio} - {turnoSeleccionado.hora_fin}</small>
       </div>
@@ -195,33 +200,36 @@ export default function CrearReserva({ onReservaCreada }) {
           {salasDisponibles.map((sala) => (
             <div key={`${sala.nombre_sala}-${sala.edificio}`} className="col-md-6 col-lg-4">
               <div
-                className={`card h-100 cursor-pointer ${salaSeleccionada?.nombre_sala === sala.nombre_sala && salaSeleccionada?.edificio === sala.edificio ? 'border-primary border-2' : ''}`}
+                className={`card h-100 cursor-pointer ${salaSeleccionada?.nombre_sala === sala.nombre_sala && salaSeleccionada?.edificio === sala.edificio ? 'border-2' : ''}`}
                 onClick={() => setSalaSeleccionada(sala)}
-                style={{ cursor: 'pointer' }}
+                style={{
+                  cursor: 'pointer',
+                  borderColor: salaSeleccionada?.nombre_sala === sala.nombre_sala && salaSeleccionada?.edificio === sala.edificio ? '#0056A6' : '#dee2e6'
+                }}
               >
                 <div className="card-header bg-white">
-                  <h5 className="card-title mb-0">{sala.nombre_sala}</h5>
-                  <small className="text-muted">{sala.edificio}</small>
+                  <h5 className="card-title mb-0" style={{color: '#003366'}}>{sala.nombre_sala}</h5>
+                  <small style={{color: '#666'}}>{sala.edificio}</small>
                 </div>
                 <div className="card-body">
                   <div className="mb-2">
-                    <strong>👥 Capacidad:</strong> {sala.capacidad} personas
+                    <strong style={{color: '#333'}}>👥 Capacidad:</strong> <span style={{color: '#333'}}>{sala.capacidad} personas</span>
                   </div>
                   <div className="mb-2">
-                    <strong>🏢 Tipo:</strong>{' '}
+                    <strong style={{color: '#333'}}>🏢 Tipo:</strong>{' '}
                     <span className={getTipoSalaBadge(sala.tipo_sala)}>
                       {sala.tipo_sala}
                     </span>
                   </div>
                   <div>
-                    <strong>📍 Ubicación:</strong>
-                    <div className="text-muted small">
+                    <strong style={{color: '#333'}}>📍 Ubicación:</strong>
+                    <div className="small" style={{color: '#666'}}>
                       {sala.direccion}, {sala.departamento}
                     </div>
                   </div>
                 </div>
                 {salaSeleccionada?.nombre_sala === sala.nombre_sala && salaSeleccionada?.edificio === sala.edificio && (
-                  <div className="card-footer bg-primary text-white text-center">
+                  <div className="card-footer text-white text-center" style={{backgroundColor: '#0056A6'}}>
                     ✓ Sala seleccionada
                   </div>
                 )}
@@ -232,7 +240,7 @@ export default function CrearReserva({ onReservaCreada }) {
 
         <div className="d-flex gap-2">
           <button
-            className="btn btn-outline-secondary"
+            className="btn btn-secondary"
             onClick={() => {
               setPaso(1);
               setSalaSeleccionada(null);
@@ -242,7 +250,8 @@ export default function CrearReserva({ onReservaCreada }) {
             ← Volver
           </button>
           <button
-            className="btn btn-primary flex-grow-1"
+            className="btn flex-grow-1"
+            style={{backgroundColor: '#0056A6', color: 'white', borderColor: '#003366'}}
             onClick={() => setPaso(3)}
             disabled={!salaSeleccionada}
           >
@@ -254,8 +263,8 @@ export default function CrearReserva({ onReservaCreada }) {
   );
 
   const renderPaso3 = () => (
-    <div className="card">
-      <div className="card-header bg-success text-white">
+    <div className="card" style={{backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #0056A6'}}>
+      <div className="card-header text-white" style={{backgroundColor: '#28a745'}}>
         <h5 className="mb-0">Paso 3: Confirma tu reserva</h5>
       </div>
       <div className="card-body">
@@ -272,27 +281,27 @@ export default function CrearReserva({ onReservaCreada }) {
 
         <div className="card mb-4">
           <div className="card-body">
-            <h5 className="card-title">{salaSeleccionada.nombre_sala}</h5>
+            <h5 className="card-title" style={{color: '#003366'}}>{salaSeleccionada.nombre_sala}</h5>
             <hr />
             <div className="row">
               <div className="col-md-6 mb-3">
-                <strong>📅 Fecha:</strong>
-                <div>{new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES')}</div>
+                <strong style={{color: '#333'}}>📅 Fecha:</strong>
+                <div style={{color: '#333'}}>{new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES')}</div>
               </div>
               <div className="col-md-6 mb-3">
-                <strong>🕐 Horario:</strong>
-                <div>{turnoSeleccionado.hora_inicio} - {turnoSeleccionado.hora_fin}</div>
+                <strong style={{color: '#333'}}>🕐 Horario:</strong>
+                <div style={{color: '#333'}}>{turnoSeleccionado.hora_inicio} - {turnoSeleccionado.hora_fin}</div>
               </div>
               <div className="col-md-6 mb-3">
-                <strong>🏢 Edificio:</strong>
-                <div>{salaSeleccionada.edificio}</div>
+                <strong style={{color: '#333'}}>🏢 Edificio:</strong>
+                <div style={{color: '#333'}}>{salaSeleccionada.edificio}</div>
               </div>
               <div className="col-md-6 mb-3">
-                <strong>👥 Capacidad:</strong>
-                <div>{salaSeleccionada.capacidad} personas</div>
+                <strong style={{color: '#333'}}>👥 Capacidad:</strong>
+                <div style={{color: '#333'}}>{salaSeleccionada.capacidad} personas</div>
               </div>
               <div className="col-md-6 mb-3">
-                <strong>🏷️ Tipo:</strong>
+                <strong style={{color: '#333'}}>🏷️ Tipo:</strong>
                 <div>
                   <span className={getTipoSalaBadge(salaSeleccionada.tipo_sala)}>
                     {salaSeleccionada.tipo_sala}
@@ -300,8 +309,8 @@ export default function CrearReserva({ onReservaCreada }) {
                 </div>
               </div>
               <div className="col-md-6 mb-3">
-                <strong>📍 Ubicación:</strong>
-                <div className="text-muted">{salaSeleccionada.direccion}, {salaSeleccionada.departamento}</div>
+                <strong style={{color: '#333'}}>📍 Ubicación:</strong>
+                <div style={{color: '#666'}}>{salaSeleccionada.direccion}, {salaSeleccionada.departamento}</div>
               </div>
             </div>
           </div>
@@ -309,7 +318,7 @@ export default function CrearReserva({ onReservaCreada }) {
 
         <div className="d-flex gap-2">
           <button
-            className="btn btn-outline-secondary"
+            className="btn btn-secondary"
             onClick={() => {
               setPaso(2);
               setError(null);
@@ -319,7 +328,8 @@ export default function CrearReserva({ onReservaCreada }) {
             ← Volver
           </button>
           <button
-            className="btn btn-success flex-grow-1 btn-lg"
+            className="btn btn-lg flex-grow-1"
+            style={{backgroundColor: '#28a745', color: 'white', borderColor: '#1e7e34'}}
             onClick={confirmarReserva}
             disabled={loading}
           >
@@ -339,25 +349,25 @@ export default function CrearReserva({ onReservaCreada }) {
 
   return (
     <div>
-      <h2 className="mb-4">Nueva Reserva</h2>
+      <h2 className="mb-4" style={{color: '#E6F0FA'}}>Nueva Reserva</h2>
 
       {/* Indicador de progreso */}
       <div className="mb-4">
         <div className="d-flex justify-content-between mb-2">
-          <small className={paso >= 1 ? 'text-primary fw-bold' : 'text-muted'}>
+          <small className={paso >= 1 ? 'fw-bold' : ''} style={{color: paso >= 1 ? '#E6F0FA' : '#ffffffcc'}}>
             1. Fecha y turno
           </small>
-          <small className={paso >= 2 ? 'text-primary fw-bold' : 'text-muted'}>
+          <small className={paso >= 2 ? 'fw-bold' : ''} style={{color: paso >= 2 ? '#E6F0FA' : '#ffffffcc'}}>
             2. Seleccionar sala
           </small>
-          <small className={paso >= 3 ? 'text-success fw-bold' : 'text-muted'}>
+          <small className={paso >= 3 ? 'fw-bold' : ''} style={{color: paso >= 3 ? '#28a745' : '#ffffffcc'}}>
             3. Confirmar
           </small>
         </div>
         <div className="progress" style={{ height: '6px' }}>
           <div
-            className="progress-bar bg-primary"
-            style={{ width: `${(paso / 3) * 100}%` }}
+            className="progress-bar"
+            style={{ width: `${(paso / 3) * 100}%`, backgroundColor: '#0056A6' }}
           ></div>
         </div>
       </div>

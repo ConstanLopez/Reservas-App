@@ -161,12 +161,12 @@ class Reserva:
     @staticmethod
     def cancelar(id_reserva, ci_participante):
         """Cancela una reserva (solo si es del participante y está activa)"""
-        reserva = Reserva.get_by_id(id_reserva) 
+        reserva = Reserva.get_by_id(id_reserva)
         #verifica que exista la reserva
         if not reserva:
             return False, "Reserva no encontrada"
-        #verifica que la reserva sea propia
-        if reserva['ci_participante'] != ci_participante:
+        #verifica que la reserva sea propia - convertir ambos a int para comparar
+        if int(reserva['ci_participante']) != int(ci_participante):
             return False, "No tienes permiso para cancelar esta reserva"
         #verifica que la reserva  no este cancelada
         if reserva['estado'] != 'activa':
@@ -266,14 +266,20 @@ class Reserva:
     
     @staticmethod
     def actualizar_por_admin(id_reserva, data):
-        campos, valores = [], []
-        for key, val in data.items():
-            campos.append(f"{key} = %s")
-            valores.append(val)
-        valores.append(id_reserva)
-        query = f"UPDATE reserva SET {', '.join(campos)} WHERE id_reserva = %s"
-        ok = execute_query(query, tuple(valores))
-        return ok, "Reserva actualizada correctamente"
+        try:
+            campos, valores = [], []
+            for key, val in data.items():
+                if key != 'id_reserva':  # No actualizar la PK
+                    campos.append(f"{key} = %s")
+                    valores.append(val)
+            if not campos:
+                return True, "No hay campos para actualizar"
+            valores.append(id_reserva)
+            query = f"UPDATE reserva SET {', '.join(campos)} WHERE id_reserva = %s"
+            ok = execute_query(query, tuple(valores))
+            return ok, "Reserva actualizada correctamente"
+        except Exception as e:
+            return False, f"Error al actualizar reserva: {str(e)}"
 
     @staticmethod
     def cancelar_por_admin(id_reserva):

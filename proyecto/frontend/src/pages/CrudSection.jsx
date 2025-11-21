@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import '../styles/estilos.css';
 
 /**
  * title: string
@@ -7,8 +8,10 @@ import { useEffect, useState } from "react";
  * formFields: [
  *    { name, label, type, options?, defaultValue?, readOnlyInEdit?, required? }
  * ]
+ * onEdit?: (row) => void  -> callback opcional antes de editar
+ * hideCreate?: boolean -> oculta el formulario cuando no está editando
  */
-export default function CrudSection({ title, api, columns, formFields }) {
+export default function CrudSection({ title, api, columns, formFields, onEdit, hideCreate }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
@@ -71,6 +74,10 @@ export default function CrudSection({ title, api, columns, formFields }) {
   };
 
   const handleEdit = (row) => {
+    // Llamar callback opcional antes de editar (para PK compuestas)
+    if (onEdit) {
+      onEdit(row);
+    }
     const data = {};
     formFields.forEach((f) => {
       data[f.name] = row[f.name] ?? "";
@@ -93,88 +100,93 @@ export default function CrudSection({ title, api, columns, formFields }) {
   };
 
   if (loading) {
-    return <p>Cargando {title.toLowerCase()}...</p>;
+    return <p style={{color: '#E6F0FA'}}>Cargando {title.toLowerCase()}...</p>;
   }
 
   return (
-    <div className="card mb-4">
+    <div className="card mb-4 shadow" style={{backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #0056A6'}}>
       <div className="card-body">
-        <h4 className="mb-3">{title}</h4>
+        {title && <h4 className="mb-3" style={{color: '#003366'}}>{title}</h4>}
 
-        {/* FORM */}
-        <form onSubmit={handleSubmit}>
-          <div className="row g-3">
-            {formFields.map((field) => (
-              <div className="col-md-3" key={field.name}>
-                <label className="form-label">{field.label}</label>
-                {field.type === "select" ? (
-                  <select
-                    className="form-select"
-                    value={formData[field.name]}
-                    onChange={(e) => handleChange(field.name, e.target.value)}
-                    required={field.required !== false}
-                    disabled={editMode && field.readOnlyInEdit}
-                  >
-                    <option value="">Seleccionar...</option>
-                    {field.options?.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    type={field.type || "text"}
-                    className="form-control"
-                    value={formData[field.name]}
-                    onChange={(e) => handleChange(field.name, e.target.value)}
-                    required={field.required !== false}
-                    disabled={editMode && field.readOnlyInEdit}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
+        {/* FORM - solo mostrar si no está hideCreate O si está en editMode */}
+        {(!hideCreate || editMode) && (
+          <form onSubmit={handleSubmit}>
+            <div className="row g-3">
+              {formFields.map((field) => (
+                <div className="col-md-3" key={field.name}>
+                  <label className="form-label fw-bold" style={{color: '#003366'}}>{field.label}</label>
+                  {field.type === "select" ? (
+                    <select
+                      className="form-select"
+                      value={formData[field.name]}
+                      onChange={(e) => handleChange(field.name, e.target.value)}
+                      required={field.required !== false}
+                      disabled={editMode && field.readOnlyInEdit}
+                      style={{borderColor: '#0056A6'}}
+                    >
+                      <option value="">Seleccionar...</option>
+                      {field.options?.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type={field.type || "text"}
+                      className="form-control"
+                      value={formData[field.name]}
+                      onChange={(e) => handleChange(field.name, e.target.value)}
+                      required={field.required !== false}
+                      disabled={editMode && field.readOnlyInEdit}
+                      style={{borderColor: '#0056A6'}}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
 
-          <button type="submit" className="btn btn-primary mt-3">
-            {editMode ? "Guardar cambios" : "Crear"}
-          </button>
-          {editMode && (
-            <button
-              type="button"
-              className="btn btn-secondary mt-3 ms-2"
-              onClick={resetForm}
-            >
-              Cancelar
+            <button type="submit" className="btn mt-3" style={{backgroundColor: '#0056A6', color: 'white', borderColor: '#003366'}}>
+              {editMode ? "Guardar cambios" : "Crear"}
             </button>
-          )}
+            {editMode && (
+              <button
+                type="button"
+                className="btn btn-secondary mt-3 ms-2"
+                onClick={resetForm}
+              >
+                Cancelar
+              </button>
+            )}
 
-          {error && <div className="alert alert-danger mt-3">{error}</div>}
-        </form>
+            {error && <div className="alert alert-danger mt-3">{error}</div>}
+          </form>
+        )}
 
         {/* TABLA */}
-        <hr className="my-4" />
+        <hr className="my-4" style={{borderColor: '#0056A6'}} />
         <div className="table-responsive">
           <table className="table table-striped table-hover">
             <thead>
-              <tr>
+              <tr style={{backgroundColor: '#003366'}}>
                 {columns.map((col) => (
-                  <th key={col.field}>{col.header}</th>
+                  <th key={col.field} className="fw-bold" style={{color: '#E6F0FA', backgroundColor: '#003366'}}>{col.header}</th>
                 ))}
-                <th>Acciones</th>
+                <th className="fw-bold" style={{color: '#E6F0FA', backgroundColor: '#003366'}}>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row, idx) => (
                 <tr key={idx}>
                   {columns.map((col) => (
-                    <td key={col.field}>
+                    <td key={col.field} style={{color: '#333'}}>
                       {col.render ? col.render(row[col.field], row) : row[col.field]}
                     </td>
                   ))}
                   <td>
                     <button
-                      className="btn btn-sm btn-warning me-2"
+                      className="btn btn-sm me-2"
+                      style={{backgroundColor: '#0056A6', color: 'white'}}
                       onClick={() => handleEdit(row)}
                     >
                       Editar
@@ -190,7 +202,7 @@ export default function CrudSection({ title, api, columns, formFields }) {
               ))}
               {rows.length === 0 && (
                 <tr>
-                  <td colSpan={columns.length + 1} className="text-center text-muted">
+                  <td colSpan={columns.length + 1} className="text-center" style={{color: '#666'}}>
                     No hay registros.
                   </td>
                 </tr>

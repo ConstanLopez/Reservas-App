@@ -15,6 +15,7 @@ export const verifyToken = async () => {
   return response.data;
 };
 
+// Elimina el token y datos del usuario del localStorage para cerrar sesión
 export const logout = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
