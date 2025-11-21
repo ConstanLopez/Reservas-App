@@ -1,3 +1,4 @@
+#admin_participantes.py
 from flask import Blueprint, request, jsonify
 from app.middleware.auth_middleware import admin_required
 from app.models.participante import Participante
