@@ -2,8 +2,9 @@ SET NAMES utf8mb4;
 SET CHARACTER SET utf8mb4;
 SET collation_connection = 'utf8mb4_general_ci';
 
--- INSERT para tabla login (10 registros)
+-- INSERT para tabla login (10 registros + admin)
 INSERT INTO login (correo, contrasena) VALUES
+('admin@ucu.edu.uy', 'Admin123!'),                 -- ADMIN
 ('juan.perez@universidad.edu.uy', 'Pass123!'),
 ('maria.gonzalez@universidad.edu.uy', 'Secure456'),
 ('carlos.rodriguez@universidad.edu.uy', 'MyPass789'),
@@ -15,18 +16,19 @@ INSERT INTO login (correo, contrasena) VALUES
 ('martin.diaz@universidad.edu.uy', 'Martin123'),
 ('valentina.ruiz@universidad.edu.uy', 'Vale456!');
 
--- INSERT para tabla participante (10 registros)
-INSERT INTO participante (ci, nombre, apellido, email) VALUES
-(12345678, 'Juan', 'Pérez', 'juan.perez@universidad.edu.uy'),
-(23456789, 'María', 'González', 'maria.gonzalez@universidad.edu.uy'),
-(34567890, 'Carlos', 'Rodríguez', 'carlos.rodriguez@universidad.edu.uy'),
-(45678901, 'Ana', 'Martínez', 'ana.martinez@universidad.edu.uy'),
-(56789012, 'Pedro', 'Sánchez', 'pedro.sanchez@universidad.edu.uy'),
-(67890123, 'Lucía', 'Fernández', 'lucia.fernandez@universidad.edu.uy'),
-(78901234, 'Diego', 'López', 'diego.lopez@universidad.edu.uy'),
-(89012345, 'Sofía', 'García', 'sofia.garcia@universidad.edu.uy'),
-(90123456, 'Martín', 'Díaz', 'martin.diaz@universidad.edu.uy'),
-(11223344, 'Valentina', 'Ruiz', 'valentina.ruiz@universidad.edu.uy');
+-- INSERT para tabla participante (10 registros + admin)
+INSERT INTO participante (ci, nombre, apellido, email, rol) VALUES
+(99999999, 'Administrador', 'Sistema', 'admin@ucu.edu.uy', 'admin'),  -- ADMIN
+(12345678, 'Juan', 'Pérez', 'juan.perez@universidad.edu.uy', 'usuario'),
+(23456789, 'María', 'González', 'maria.gonzalez@universidad.edu.uy', 'usuario'),
+(34567890, 'Carlos', 'Rodríguez', 'carlos.rodriguez@universidad.edu.uy', 'usuario'),
+(45678901, 'Ana', 'Martínez', 'ana.martinez@universidad.edu.uy', 'usuario'),
+(56789012, 'Pedro', 'Sánchez', 'pedro.sanchez@universidad.edu.uy', 'usuario'),
+(67890123, 'Lucía', 'Fernández', 'lucia.fernandez@universidad.edu.uy', 'usuario'),
+(78901234, 'Diego', 'López', 'diego.lopez@universidad.edu.uy', 'usuario'),
+(89012345, 'Sofía', 'García', 'sofia.garcia@universidad.edu.uy', 'usuario'),
+(90123456, 'Martín', 'Díaz', 'martin.diaz@universidad.edu.uy', 'usuario'),
+(11223344, 'Valentina', 'Ruiz', 'valentina.ruiz@universidad.edu.uy', 'usuario');
 
 -- INSERT para tabla facultad (10 registros)
 INSERT INTO facultad (id_facultad, nombre) VALUES
@@ -93,18 +95,23 @@ INSERT INTO sala (nombre_sala, edificio, capacidad, tipo_sala) VALUES
 ('Sala Seminario', 'Edificio Posgrado', 15, 'posgrado'),
 ('Sala 102', 'Anexo A', 45, 'libre');
 
--- INSERT para tabla turno (10 registros)
+-- INSERT para tabla turno (15 registros)
 INSERT INTO turno (hora_inicio, hora_fin) VALUES
-('08:00:00', '10:00:00'),
-('10:00:00', '12:00:00'),
-('12:00:00', '14:00:00'),
-('14:00:00', '16:00:00'),
-('16:00:00', '18:00:00'),
-('18:00:00', '20:00:00'),
-('08:00:00', '12:00:00'),
-('14:00:00', '18:00:00'),
-('09:00:00', '11:00:00'),
-('15:00:00', '17:00:00');
+('08:00:00', '09:00:00'),
+('09:00:00', '10:00:00'),
+('10:00:00', '11:00:00'),
+('11:00:00', '12:00:00'),
+('12:00:00', '13:00:00'),
+('13:00:00', '14:00:00'),
+('14:00:00', '15:00:00'),
+('15:00:00', '16:00:00'),
+('16:00:00', '17:00:00'),
+('17:00:00', '18:00:00'),
+('18:00:00', '19:00:00'),
+('19:00:00', '20:00:00'),
+('20:00:00', '21:00:00'),
+('21:00:00', '22:00:00'),
+('22:00:00', '23:00:00');
 
 -- INSERT para tabla reserva (10 registros)
 INSERT INTO reserva (nombre_sala, edificio, fecha, id_turno, estado) VALUES
@@ -133,7 +140,7 @@ INSERT INTO reserva_participante (ci_participante, id_reserva, fecha_solicitud_r
 (11223344, 10, '2024-11-19', TRUE);
 
 -- INSERT para tabla sancion_participante (10 registros)
-INSERT INTO sancion_partcipante (ci_participante, fecha_inicio, fecha_fin) VALUES
+INSERT INTO sancion_participante (ci_participante, fecha_inicio, fecha_fin) VALUES
 (45678901, '2024-11-01', '2024-11-08'),
 (56789012, '2024-11-05', '2024-11-12'),
 (78901234, '2024-11-10', '2024-11-17'),

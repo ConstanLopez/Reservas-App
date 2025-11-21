@@ -1,7 +1,7 @@
 from app.database import fetch_query, execute_query
 from datetime import date,timedelta
 from app.models.participante import Participante
-
+from app.models.sala import Sala
 class Reserva:
     @staticmethod
     def get_by_participante(ci_participante, incluir_canceladas=False):
@@ -52,17 +52,14 @@ class Reserva:
     
     @staticmethod
     def crear(nombre_sala, edificio, fecha, id_turno, ci_participante):
-        """Crea una nueva reserva"""
-        from app.models.participante import Participante
-        from app.models.sala import Sala
+        """Crea una nueva reserva TODAS las validaciones"""
+        from app.models.validaciones import ValidacionesReserva
         
-        # Validar que el participante no tenga sanciones activas
-        if Participante.tiene_sancion_activa(ci_participante):
-            sancion = Participante.get_sancion_activa(ci_participante)
-            return None, f"No puedes realizar reservas. Tienes una sanción activa hasta {sancion['fecha_fin']}"
+        # Validar TODAS las reglas de forma centralizadas
+        puede, mensaje = ValidacionesReserva.puede_reservar(
+            ci_participante, nombre_sala, edificio, fecha, id_turno
+        )
         
-        # Validar permisos sobre la sala
-        puede, mensaje = Sala.puede_reservar(nombre_sala, edificio, ci_participante)
         if not puede:
             return None, mensaje
 

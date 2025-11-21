@@ -28,9 +28,10 @@ class Auth:
         """Crea registro en tabla login en la base de datos"""
         query = "INSERT INTO login (correo, contrasena) VALUES (%s, %s)"
         print("ejecutando query")
-        result =  execute_query(query, (email, password_hash))
+        result = execute_query(query, (email, password_hash))
         print(f"✅ Resultado execute_query: {result}")
         return result
+
     
     @staticmethod
     def crear_participante(ci, nombre, apellido, email):

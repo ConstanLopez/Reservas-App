@@ -83,7 +83,7 @@ class Participante:
             SELECT COUNT(*) as count 
             FROM participante_programa_academico ppa
             JOIN programa_academico pa ON ppa.nombre_programa = pa.nombre_programa
-            WHERE ppa.ci_participante = %s AND pa.tipo = 'posgrado'
+            WHERE ppa.ci_participante = %s AND pa.tipo = 'posgrado' AND ppa.rol = 'alumno'
         """
         rows = fetch_query(query, (ci,))
         return rows[0]['count'] > 0 if rows else False
