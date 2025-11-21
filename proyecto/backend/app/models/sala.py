@@ -1,4 +1,4 @@
-from app.database import fetch_query
+from app.database import fetch_query, execute_query
 
 class Sala:
     @staticmethod
@@ -91,3 +91,49 @@ class Sala:
             return False, "Solo docentes o estudiantes de posgrado pueden reservar esta sala"
         
         return False, "Tipo de sala desconocido"
+
+    @staticmethod
+    def crear(nombre_sala, edificio, capacidad, tipo_sala):
+        """Crea una nueva sala"""
+        try:
+            query = """
+                INSERT INTO sala (nombre_sala, edificio, capacidad, tipo_sala)
+                VALUES (%s, %s, %s, %s)
+            """
+            execute_query(query, (nombre_sala, edificio, capacidad, tipo_sala))
+            return True, "Sala creada exitosamente"
+        except Exception as e:
+            return False, f"Error al crear sala: {str(e)}"
+
+    @staticmethod
+    def actualizar(nombre_sala, edificio, capacidad, tipo_sala):
+        """Actualiza una sala existente (solo capacidad y tipo)"""
+        try:
+            query = """
+                UPDATE sala
+                SET capacidad = %s, tipo_sala = %s
+                WHERE nombre_sala = %s AND edificio = %s
+            """
+            execute_query(query, (capacidad, tipo_sala, nombre_sala, edificio))
+            return True, "Sala actualizada exitosamente"
+        except Exception as e:
+            return False, f"Error al actualizar sala: {str(e)}"
+
+    @staticmethod
+    def eliminar(nombre_sala, edificio):
+        """Elimina una sala (solo si no tiene reservas asociadas)"""
+        try:
+            # Verificar si tiene reservas asociadas
+            check_query = """
+                SELECT COUNT(*) as count FROM reserva
+                WHERE nombre_sala = %s AND edificio = %s
+            """
+            result = fetch_query(check_query, (nombre_sala, edificio))
+            if result and result[0]['count'] > 0:
+                return False, "No se puede eliminar una sala con reservas asociadas"
+
+            query = "DELETE FROM sala WHERE nombre_sala = %s AND edificio = %s"
+            execute_query(query, (nombre_sala, edificio))
+            return True, "Sala eliminada exitosamente"
+        except Exception as e:
+            return False, f"Error al eliminar sala: {str(e)}"

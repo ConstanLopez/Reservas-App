@@ -75,8 +75,9 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Limpia la sesión del usuario: remueve token/user de localStorage y resetea el estado
   const logout = () => {
-    logoutService();
+    logoutService(); // Elimina token y user del localStorage
     setUser(null);
     setIsAuthenticated(false);
   };

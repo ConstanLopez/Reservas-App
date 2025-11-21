@@ -5,20 +5,23 @@ import {
   salasApi,
   reservasApi,
   sancionesApi,
+  turnosApi,
 } from "../../services/adminService";
+import '../../styles/estilos.css';
 
 export default function AdminPanel() {
   const [tab, setTab] = useState("participantes");
 
   return (
     <div className="container py-4">
-      <h2 className="mb-4">Panel de Administración</h2>
+      <h2 className="mb-4" style={{color: '#E6F0FA'}}>Panel de Administración</h2>
 
-      <ul className="nav nav-tabs mb-4">
+      <ul className="nav nav-tabs mb-4" style={{borderBottom: '2px solid #E6F0FA'}}>
         <li className="nav-item">
           <button
             className={`nav-link ${tab === "participantes" ? "active" : ""}`}
             onClick={() => setTab("participantes")}
+            style={tab === "participantes" ? {backgroundColor: '#0056A6', color: '#E6F0FA', borderColor: '#E6F0FA'} : {color: '#E6F0FA', backgroundColor: 'transparent', border: 'none'}}
           >
             Participantes
           </button>
@@ -27,6 +30,7 @@ export default function AdminPanel() {
           <button
             className={`nav-link ${tab === "salas" ? "active" : ""}`}
             onClick={() => setTab("salas")}
+            style={tab === "salas" ? {backgroundColor: '#0056A6', color: '#E6F0FA', borderColor: '#E6F0FA'} : {color: '#E6F0FA', backgroundColor: 'transparent', border: 'none'}}
           >
             Salas
           </button>
@@ -35,6 +39,7 @@ export default function AdminPanel() {
           <button
             className={`nav-link ${tab === "reservas" ? "active" : ""}`}
             onClick={() => setTab("reservas")}
+            style={tab === "reservas" ? {backgroundColor: '#0056A6', color: '#E6F0FA', borderColor: '#E6F0FA'} : {color: '#E6F0FA', backgroundColor: 'transparent', border: 'none'}}
           >
             Reservas
           </button>
@@ -43,8 +48,18 @@ export default function AdminPanel() {
           <button
             className={`nav-link ${tab === "sanciones" ? "active" : ""}`}
             onClick={() => setTab("sanciones")}
+            style={tab === "sanciones" ? {backgroundColor: '#0056A6', color: '#E6F0FA', borderColor: '#E6F0FA'} : {color: '#E6F0FA', backgroundColor: 'transparent', border: 'none'}}
           >
             Sanciones
+          </button>
+        </li>
+        <li className="nav-item">
+          <button
+            className={`nav-link ${tab === "turnos" ? "active" : ""}`}
+            onClick={() => setTab("turnos")}
+            style={tab === "turnos" ? {backgroundColor: '#0056A6', color: '#E6F0FA', borderColor: '#E6F0FA'} : {color: '#E6F0FA', backgroundColor: 'transparent', border: 'none'}}
+          >
+            Turnos
           </button>
         </li>
       </ul>
@@ -124,30 +139,51 @@ export default function AdminPanel() {
       )}
 
       {tab === "reservas" && (
-        <CrudSection
-          title="ABM de reservas"
-          api={reservasApi}
-          columns={[
-            { header: "ID", field: "id_reserva" },
-            { header: "Sala", field: "nombre_sala" },
-            { header: "Edificio", field: "edificio" },
-            { header: "Fecha", field: "fecha" },
-            { header: "Inicio", field: "hora_inicio" },
-            { header: "Fin", field: "hora_fin" },
-            { header: "Estado", field: "estado" },
-            { header: "CI", field: "ci" },
-          ]}
-          formFields={[
-            {
-              name: "id_reserva",
-              label: "ID reserva",
-              type: "number",
-              readOnlyInEdit: true,
-              required: false,
-            },
-            { name: "estado", label: "Estado", type: "text" },
-          ]}
-        />
+        <div className="card mb-4 shadow" style={{backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #0056A6'}}>
+          <div className="card-body">
+            <h4 className="mb-3" style={{color: '#003366'}}>ABM de reservas</h4>
+            <p style={{color: '#666'}}>
+              Nota: Para crear reservas, los usuarios deben hacerlo desde su panel.
+              Aquí solo puedes modificar el estado o eliminar reservas existentes.
+            </p>
+            <CrudSection
+              title=""
+              api={reservasApi}
+              columns={[
+                { header: "ID", field: "id_reserva" },
+                { header: "Sala", field: "nombre_sala" },
+                { header: "Edificio", field: "edificio" },
+                { header: "Fecha", field: "fecha" },
+                { header: "Turno", field: "id_turno" },
+                { header: "Inicio", field: "hora_inicio" },
+                { header: "Fin", field: "hora_fin" },
+                { header: "Estado", field: "estado" },
+                { header: "CI", field: "ci_participante" },
+                { header: "Participante", field: "nombre", render: (_, row) => `${row.nombre} ${row.apellido}` },
+              ]}
+              formFields={[
+                {
+                  name: "id_reserva",
+                  label: "ID reserva (solo lectura)",
+                  type: "number",
+                  readOnlyInEdit: true,
+                  required: false,
+                },
+                {
+                  name: "estado",
+                  label: "Estado",
+                  type: "select",
+                  options: [
+                    { value: "activa", label: "Activa" },
+                    { value: "cancelada", label: "Cancelada" },
+                    { value: "cancelada_admin", label: "Cancelada por Admin" },
+                  ],
+                },
+              ]}
+              hideCreate={true}
+            />
+          </div>
+        </div>
       )}
 
       {tab === "sanciones" && (
@@ -155,22 +191,40 @@ export default function AdminPanel() {
           title="ABM de sanciones"
           api={sancionesApi}
           columns={[
-            { header: "ID", field: "id_sancion" },
             { header: "CI participante", field: "ci_participante" },
-            { header: "Inicio", field: "fecha_inicio" },
-            { header: "Fin", field: "fecha_fin" },
+            { header: "Nombre", field: "nombre" },
+            { header: "Apellido", field: "apellido" },
+            { header: "Fecha inicio", field: "fecha_inicio" },
+            { header: "Fecha fin", field: "fecha_fin" },
+          ]}
+          formFields={[
+            { name: "ci_participante", label: "CI participante", type: "number", readOnlyInEdit: true },
+            { name: "fecha_inicio", label: "Fecha inicio", type: "date" },
+            { name: "fecha_fin", label: "Fecha fin", type: "date" },
+          ]}
+          onEdit={(row) => sancionesApi.setOriginal(row)}
+        />
+      )}
+
+      {tab === "turnos" && (
+        <CrudSection
+          title="ABM de turnos"
+          api={turnosApi}
+          columns={[
+            { header: "ID", field: "id_turno" },
+            { header: "Hora inicio", field: "hora_inicio" },
+            { header: "Hora fin", field: "hora_fin" },
           ]}
           formFields={[
             {
-              name: "id_sancion",
-              label: "ID sanción (solo editar)",
+              name: "id_turno",
+              label: "ID turno (solo editar)",
               type: "number",
               readOnlyInEdit: true,
               required: false,
             },
-            { name: "ci_participante", label: "CI participante", type: "text" },
-            { name: "fecha_inicio", label: "Fecha inicio", type: "date" },
-            { name: "fecha_fin", label: "Fecha fin", type: "date" },
+            { name: "hora_inicio", label: "Hora inicio (HH:MM)", type: "time" },
+            { name: "hora_fin", label: "Hora fin (HH:MM)", type: "time" },
           ]}
         />
       )}

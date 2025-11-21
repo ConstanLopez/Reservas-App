@@ -6,6 +6,7 @@ from flask_cors import cross_origin
 
 bp = Blueprint('admin_sanciones', __name__, url_prefix='/api/admin/sanciones')
 ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
+
 # GET: todas las sanciones
 @bp.route('/', methods=['GET', 'OPTIONS'])
 @cross_origin(origins=ORIGINS,
@@ -14,45 +15,105 @@ ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
               expose_headers=['Authorization'])
 @admin_required
 def listar_sanciones(current_user):
-    if request.method == 'OPTIONS': #Esto lo que hace es autorizar el preflight del buscador antes de la query real, esto ya que esta el método OPTIONS del CORS
-        return ('', 204) 
-    query = """
-        SELECT s.id_sancion, s.ci_participante, p.nombre, p.apellido,
-               s.fecha_inicio, s.fecha_fin
-        FROM sancion_partcipante s
-        JOIN participante p ON s.ci_participante = p.ci
-        ORDER BY s.fecha_inicio DESC
-    """
-    return jsonify({'success': True, 'data': fetch_query(query)}), 200
-
-# GET: sanciones por participante
-@bp.get('/<ci>')
-@admin_required
-def sanciones_por_participante(current_user, ci):
-    query = """
-        SELECT id_sancion, fecha_inicio, fecha_fin
-        FROM sancion_participante
-        WHERE ci_participante = %s
-        ORDER BY fecha_inicio DESC
-    """
-    return jsonify({'success': True, 'data': fetch_query(query, (ci,))}), 200
+    if request.method == 'OPTIONS':
+        return ('', 204)
+    try:
+        query = """
+            SELECT s.ci_participante, p.nombre, p.apellido,
+                   DATE_FORMAT(s.fecha_inicio, '%Y-%m-%d') as fecha_inicio,
+                   DATE_FORMAT(s.fecha_fin, '%Y-%m-%d') as fecha_fin
+            FROM sancion_participante s
+            JOIN participante p ON s.ci_participante = p.ci
+            ORDER BY s.fecha_inicio DESC
+        """
+        return jsonify({'success': True, 'data': fetch_query(query)}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 # POST: crear sanción manual
 @bp.post('/')
 @admin_required
 def crear_sancion(current_user):
-    data = request.get_json()
-    query = """
-        INSERT INTO sancion_participante (ci_participante, fecha_inicio, fecha_fin)
-        VALUES (%s, %s, %s)
-    """
-    ok = execute_query(query, (data['ci_participante'], data['fecha_inicio'], data['fecha_fin']))
-    return jsonify({'success': ok, 'message': 'Sanción creada manualmente'}), 201 if ok else 400
+    try:
+        data = request.get_json()
+        required = ['ci_participante', 'fecha_inicio', 'fecha_fin']
+        for field in required:
+            if field not in data:
+                return jsonify({'success': False, 'message': f'Falta campo: {field}'}), 400
 
-# DELETE: eliminar (levantar) sanción
-@bp.delete('/<int:id_sancion>')
+        query = """
+            INSERT INTO sancion_participante (ci_participante, fecha_inicio, fecha_fin)
+            VALUES (%s, %s, %s)
+        """
+        ok = execute_query(query, (data['ci_participante'], data['fecha_inicio'], data['fecha_fin']))
+        return jsonify({'success': ok, 'message': 'Sanción creada exitosamente'}), 201 if ok else 400
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# PUT: actualizar sanción - como la PK es compuesta, se necesitan los valores viejos y nuevos
+@bp.put('/')
 @admin_required
-def eliminar_sancion(current_user, id_sancion):
-    query = "DELETE FROM sancion_participante WHERE id_sancion = %s"
-    ok = execute_query(query, (id_sancion,))
-    return jsonify({'success': ok, 'message': 'Sanción levantada'}), 200 if ok else 40
+def actualizar_sancion(current_user):
+    try:
+        data = request.get_json()
+        print(f"[UPDATE SANCION] Data recibida: {data}")
+        # Para identificar la sanción a modificar necesitamos la PK completa original
+        required = ['ci_participante', 'fecha_inicio', 'fecha_fin']
+        for field in required:
+            if field not in data:
+                return jsonify({'success': False, 'message': f'Falta campo: {field}'}), 400
+
+        # Como la tabla usa PK compuesta, hacemos DELETE + INSERT
+        # Primero guardamos los valores originales (asumimos que vienen con sufijo _old)
+        ci_old = data.get('ci_participante_old', data['ci_participante'])
+        fecha_inicio_old = data.get('fecha_inicio_old', data['fecha_inicio'])
+        fecha_fin_old = data.get('fecha_fin_old', data['fecha_fin'])
+
+        print(f"[UPDATE SANCION] Valores OLD: ci={ci_old}, inicio={fecha_inicio_old}, fin={fecha_fin_old}")
+        print(f"[UPDATE SANCION] Valores NEW: ci={data['ci_participante']}, inicio={data['fecha_inicio']}, fin={data['fecha_fin']}")
+
+        delete_query = """
+            DELETE FROM sancion_participante
+            WHERE ci_participante = %s
+            AND DATE(fecha_inicio) = DATE(%s)
+            AND DATE(fecha_fin) = DATE(%s)
+        """
+        ok_delete = execute_query(delete_query, (ci_old, fecha_inicio_old, fecha_fin_old))
+        print(f"[UPDATE SANCION] Delete resultado: {ok_delete}")
+
+        insert_query = """
+            INSERT INTO sancion_participante (ci_participante, fecha_inicio, fecha_fin)
+            VALUES (%s, %s, %s)
+        """
+        ok = execute_query(insert_query, (data['ci_participante'], data['fecha_inicio'], data['fecha_fin']))
+        print(f"[UPDATE SANCION] Insert resultado: {ok}")
+        return jsonify({'success': ok, 'message': 'Sanción actualizada'}), 200 if ok else 400
+    except Exception as e:
+        print(f"[UPDATE SANCION] Exception: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# DELETE: eliminar (levantar) sanción - usa la PK compuesta
+@bp.delete('/')
+@admin_required
+def eliminar_sancion(current_user):
+    try:
+        data = request.get_json()
+        print(f"[DELETE SANCION] Data recibida: {data}")
+        required = ['ci_participante', 'fecha_inicio', 'fecha_fin']
+        for field in required:
+            if field not in data:
+                return jsonify({'success': False, 'message': f'Falta campo: {field}'}), 400
+
+        query = """
+            DELETE FROM sancion_participante
+            WHERE ci_participante = %s
+            AND DATE(fecha_inicio) = DATE(%s)
+            AND DATE(fecha_fin) = DATE(%s)
+        """
+        print(f"[DELETE SANCION] Ejecutando query con: ci={data['ci_participante']}, inicio={data['fecha_inicio']}, fin={data['fecha_fin']}")
+        ok = execute_query(query, (data['ci_participante'], data['fecha_inicio'], data['fecha_fin']))
+        print(f"[DELETE SANCION] Resultado: {ok}")
+        return jsonify({'success': ok, 'message': 'Sanción eliminada' if ok else 'Error al eliminar'}), 200 if ok else 400
+    except Exception as e:
+        print(f"[DELETE SANCION] Exception: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500

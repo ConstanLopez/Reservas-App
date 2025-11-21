@@ -40,6 +40,7 @@ def crear_sala(current_user):
         return jsonify({'success': False, 'message': str(e)}), 500
 
 # ACTUALIZAR SALA (solo admin)
+# Modifica capacidad o tipo de una sala existente identificada por nombre_sala + edificio
 @bp.put('/')
 @admin_required
 def actualizar_sala(current_user):
@@ -66,6 +67,7 @@ def actualizar_sala(current_user):
 
 
 # ELIMINAR SALA (solo admin)
+# Recibe nombre_sala y edificio en el body para identificar la sala a eliminar
 @bp.delete('/')
 @admin_required
 def eliminar_sala(current_user):

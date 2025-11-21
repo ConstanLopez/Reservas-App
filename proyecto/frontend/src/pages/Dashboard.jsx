@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { Dropdown } from 'react-bootstrap';
 import CrearReserva from '../pages/CrearReserva';
 import MisReservas from '../pages/MisReservas';
 import AdminPanel from '../pages/Auth/AdminPanel';
 import { useAuth } from '../context/AuthContext';
+import '../styles/estilos.css';
 
 export default function Dashboard() {
   const [vistaActual, setVistaActual] = useState('inicio');
@@ -10,10 +12,10 @@ export default function Dashboard() {
 
   const esAdmin = user?.rol === 'admin';
 
+  // Cierra sesión y redirige al login
   const handleLogout = () => {
-    // usamos el logout del contexto (borra token y user)
-    logout();
-    window.location.href = '/login';
+    logout(); // Limpia token, user y estado de autenticación
+    window.location.href = '/login'; // Redirige a la página de login
   };
 
   const renderVista = () => {
@@ -38,8 +40,8 @@ export default function Dashboard() {
       default:
         return (
           <div className="text-center py-5">
-            <h2 className="mb-4">Bienvenido al Sistema de Reservas</h2>
-            <p className="text-muted mb-4">
+            <h2 className="mb-4" style={{color: '#ffffffff'}}>Bienvenido al Sistema de Reservas</h2>
+            <p className="mb-4" style={{color: '#ffffffff'}}>
               Selecciona una opción del menú para comenzar
             </p>
             <div className="row justify-content-center g-4">
@@ -47,12 +49,11 @@ export default function Dashboard() {
                 <div
                   className="card h-100 shadow-sm cursor-pointer hover-shadow"
                   onClick={() => setVistaActual('crear-reserva')}
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: 'pointer', borderColor: '#0056A6' }}
                 >
                   <div className="card-body text-center p-4">
-                    <div className="display-4 mb-3">📅</div>
-                    <h5 className="card-title">Nueva Reserva</h5>
-                    <p className="card-text text-muted">
+                    <h5 className="card-title" style={{color: '#003366'}}>Nueva Reserva</h5>
+                    <p className="card-text" style={{color: '#666'}}>
                       Reserva una sala para tus actividades
                     </p>
                   </div>
@@ -62,12 +63,11 @@ export default function Dashboard() {
                 <div
                   className="card h-100 shadow-sm cursor-pointer hover-shadow"
                   onClick={() => setVistaActual('mis-reservas')}
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: 'pointer', borderColor: '#0056A6' }}
                 >
                   <div className="card-body text-center p-4">
-                    <div className="display-4 mb-3">📋</div>
-                    <h5 className="card-title">Mis Reservas</h5>
-                    <p className="card-text text-muted">
+                    <h5 className="card-title" style={{color: '#003366'}}>Mis Reservas</h5>
+                    <p className="card-text" style={{color: '#666'}}>
                       Ver y gestionar tus reservas
                     </p>
                   </div>
@@ -80,12 +80,12 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-vh-100 bg-light">
+    <div className="min-vh-100" style={{background: 'linear-gradient(180deg, #0056A6 0%, #003366 100%)'}}>
       {/* Navbar */}
-      <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+      <nav className="navbar navbar-expand-lg navbar-dark shadow" style={{backgroundColor: '#003366'}}>
         <div className="container-fluid">
-          <span className="navbar-brand mb-0 h1">
-            🏫 Sistema de Reservas UCU
+          <span className="navbar-brand mb-0 h1" style={{color: '#E6F0FA'}}>
+            Sistema de Reservas UCU
           </span>
           <button
             className="navbar-toggler"
@@ -143,36 +143,24 @@ export default function Dashboard() {
               )}
 
               {/* Dropdown usuario */}
-              <li className="nav-item dropdown">
-                <a
-                  className="nav-link dropdown-toggle"
-                  href="#"
-                  id="userDropdown"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                >
-                  👤 {user?.nombre || 'Usuario'}
-                </a>
-                <ul className="dropdown-menu dropdown-menu-end">
-                  <li>
-                    <span className="dropdown-item-text">
-                      <small className="text-muted">
+              <li className="nav-item">
+                <Dropdown align="end">
+                  <Dropdown.Toggle variant="link" className="nav-link text-decoration-none" id="userDropdown" style={{color: '#E6F0FA'}}>
+                    {user?.nombre || 'Usuario'}
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu>
+                    <Dropdown.ItemText>
+                      <small style={{color: '#666'}}>
                         {user?.email || 'usuario@ucu.edu.uy'}
                       </small>
-                    </span>
-                  </li>
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item text-danger"
-                      onClick={handleLogout}
-                    >
+                    </Dropdown.ItemText>
+                    <Dropdown.Divider />
+                    <Dropdown.Item onClick={handleLogout} className="text-danger">
                       Cerrar Sesión
-                    </button>
-                  </li>
-                </ul>
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
               </li>
             </ul>
           </div>

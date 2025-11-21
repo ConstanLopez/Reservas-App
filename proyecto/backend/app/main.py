@@ -59,7 +59,7 @@ def create_app():
     
 
     # Registrar blueprints
-    from .routes import auth, reservas, salas,reportes, turnos,admin_reservas,admin_participantes,admin_sanciones,admin_salas
+    from .routes import auth, reservas, salas, turnos,admin_reservas,admin_participantes,admin_sanciones,admin_salas,admin_turnos,bi
     app.register_blueprint(auth.bp)
     app.register_blueprint(reservas.bp)
     app.register_blueprint(salas.bp)
@@ -70,6 +70,8 @@ def create_app():
     app.register_blueprint(admin_reservas.bp)
     app.register_blueprint(admin_sanciones.bp)
     app.register_blueprint(admin_salas.bp)
+    app.register_blueprint(admin_turnos.bp)
+    app.register_blueprint(bi.bp)
 
 
     # Lista todas las rutas registradas en tu app (útil para debug o revisar si se registraron los endpoints correctamente).

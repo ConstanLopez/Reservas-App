@@ -85,10 +85,10 @@ export default function MisReservas() {
   if (loading) {
     return (
       <div className="text-center py-5">
-        <div className="spinner-border text-primary" role="status">
+        <div className="spinner-border" style={{color: '#E6F0FA'}} role="status">
           <span className="visually-hidden">Cargando...</span>
         </div>
-        <p className="mt-3 text-muted">Cargando reservas...</p>
+        <p className="mt-3" style={{color: '#E6F0FA'}}>Cargando reservas...</p>
       </div>
     );
   }
@@ -108,32 +108,35 @@ export default function MisReservas() {
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Mis Reservas</h2>
-        <button className="btn btn-outline-primary btn-sm" onClick={cargarReservas}>
+        <h2 style={{color: '#E6F0FA'}}>Mis Reservas</h2>
+        <button className="btn btn-sm" style={{backgroundColor: '#0056A6', color: '#E6F0FA', borderColor: '#E6F0FA'}} onClick={cargarReservas}>
           🔄 Actualizar
         </button>
       </div>
 
       {/* Filtros */}
-      <div className="card mb-4">
+      <div className="card mb-4" style={{backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #0056A6'}}>
         <div className="card-body">
           <div className="row align-items-center">
             <div className="col-md-6">
               <div className="btn-group" role="group">
                 <button
-                  className={`btn ${filtro === 'todas' ? 'btn-primary' : 'btn-outline-primary'}`}
+                  className="btn"
+                  style={filtro === 'todas' ? {backgroundColor: '#0056A6', color: '#E6F0FA', borderColor: '#003366'} : {backgroundColor: 'transparent', color: '#0056A6', borderColor: '#0056A6'}}
                   onClick={() => setFiltro('todas')}
                 >
                   Todas
                 </button>
                 <button
-                  className={`btn ${filtro === 'activas' ? 'btn-primary' : 'btn-outline-primary'}`}
+                  className="btn"
+                  style={filtro === 'activas' ? {backgroundColor: '#0056A6', color: '#E6F0FA', borderColor: '#003366'} : {backgroundColor: 'transparent', color: '#0056A6', borderColor: '#0056A6'}}
                   onClick={() => setFiltro('activas')}
                 >
                   Activas
                 </button>
                 <button
-                  className={`btn ${filtro === 'pasadas' ? 'btn-primary' : 'btn-outline-primary'}`}
+                  className="btn"
+                  style={filtro === 'pasadas' ? {backgroundColor: '#0056A6', color: '#E6F0FA', borderColor: '#003366'} : {backgroundColor: 'transparent', color: '#0056A6', borderColor: '#0056A6'}}
                   onClick={() => setFiltro('pasadas')}
                 >
                   Pasadas
@@ -149,7 +152,7 @@ export default function MisReservas() {
                   checked={incluirCanceladas}
                   onChange={(e) => setIncluirCanceladas(e.target.checked)}
                 />
-                <label className="form-check-label" htmlFor="incluirCanceladas">
+                <label className="form-check-label" htmlFor="incluirCanceladas" style={{color: '#003366'}}>
                   Incluir canceladas
                 </label>
               </div>
@@ -220,9 +223,9 @@ export default function MisReservas() {
       )}
 
       {/* Resumen */}
-      <div className="card mt-4">
+      <div className="card mt-4" style={{backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #0056A6'}}>
         <div className="card-body">
-          <strong>Total de reservas mostradas:</strong> {reservasFiltradas.length}
+          <strong style={{color: '#003366'}}>Total de reservas mostradas:</strong> <span style={{color: '#003366'}}>{reservasFiltradas.length}</span>
         </div>
       </div>
     </div>

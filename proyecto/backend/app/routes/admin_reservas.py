@@ -15,6 +15,7 @@ def listar_reservas(current_user):
         return jsonify({'success': False, 'message': str(e)}), 500
 
 # PUT: modificar reserva (fecha, turno o estado)
+# Permite al admin cambiar datos de una reserva existente
 @bp.put('/<int:id_reserva>')
 @admin_required
 def actualizar_reserva(current_user, id_reserva):
@@ -27,6 +28,7 @@ def actualizar_reserva(current_user, id_reserva):
         return jsonify({'success': False, 'message': str(e)}), 500
 
 # DELETE: cancelar o eliminar reserva
+# Cancela/elimina una reserva identificada por su ID
 @bp.delete('/<int:id_reserva>')
 @admin_required
 def eliminar_reserva(current_user, id_reserva):
