@@ -19,6 +19,9 @@ def get_mis_reservas(current_user):
         
         reservas = Reserva.get_by_participante(ci, incluir_canceladas) #Llamamos al método para obtener las reservas de cada participante segun su CI
         
+        for r in reservas:
+            r['participantes'] = Reserva.get_participantes_de_reserva(r['id_reserva'])
+
         return jsonify({ #Devolvemos un JSON
             'success': True, 
             'data': reservas,
@@ -84,6 +87,11 @@ def crear_reserva(current_user):
         fecha_str = data['fecha']
         id_turno = data['id_turno']
         ci = current_user['ci']
+        participantes = data.get('participantes', [])
+        hora_inicio_rango = data.get('hora_inicio_rango')
+        hora_fin_rango = data.get('hora_fin_rango')
+        if participantes is None:
+            participantes = []
         
         
         # Validar formato de fecha
@@ -103,7 +111,7 @@ def crear_reserva(current_user):
             }), 400
         
         # Crear la reserva
-        id_reserva, mensaje = Reserva.crear(nombre_sala, edificio, fecha, id_turno, ci)
+        id_reserva, mensaje = Reserva.crear(nombre_sala, edificio, fecha, id_turno, ci,participantes,hora_inicio_rango, hora_fin_rango)
         
         if id_reserva:
             reserva = Reserva.get_by_id(id_reserva)

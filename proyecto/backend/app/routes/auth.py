@@ -2,6 +2,7 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin #cross origin se usa en cada endpoint
 from app.models.auth import Auth
+from app.database import fetch_query
 from app.utils.auth_utils import hash_password, verify_password, generate_token
 
 #Creamos un Blueprint, que va a agrupar todas las rutas bajo el prefijo  /api/auth
@@ -27,9 +28,19 @@ def register():
 
     #Extrae del JSON de la request los campos requeridos 
     ci = data['ci']; nombre = data['nombre']; apellido = data['apellido']
-    email = data['email']; password = data['password']
-    nombre_programa = data['nombre_programa']; rol = data['rol'];
+    email = data['email'].strip().lower(); password = data['password']
+    nombre_programa = data['nombre_programa'].strip(); rol = data['rol'];
 
+    row_prog = fetch_query(
+        "SELECT tipo FROM programa_academico WHERE nombre_programa = %s",
+        (nombre_programa,)
+    )
+
+    if not row_prog:
+        return jsonify({'error': 'El programa académico seleccionado no existe'}), 400
+
+    tipo_programa = row_prog[0]['tipo']  # 'grado' o 'posgrado'
+    
     #Controla si el ci, o el mail ya estan registrados y el largo de la contraseña
     if Auth.email_existe(email):
         return jsonify({'error': 'El email ya está registrado'}), 400
@@ -53,13 +64,13 @@ def register():
         #Crea un diccionario con los datos del usuario y con generate_token crea un JWT firmado con la SECRET_KEY
         #Este token  se devuelve al frontend para matener la sesión del usuario
         user_data = {'correo': email, 'ci': ci, 'nombre': nombre,
-                     'apellido': apellido, 'rol': rol, 'tipo_programa': 'grado'}
+                     'apellido': apellido, 'rol': rol, 'tipo_programa': tipo_programa}
         token = generate_token(user_data)
 
         return jsonify({
             'message': 'Usuario registrado exitosamente',
             'token': token, #Token JWT
-            'user': {'ci': ci, 'nombre': nombre, 'apellido': apellido, 'email': email, 'rol': rol} #Datos visibles del usuario
+            'user': {'ci': ci, 'nombre': nombre, 'apellido': apellido, 'email': email, 'rol': rol,'tipo_programa': tipo_programa} #Datos visibles del usuario
         }), 201
     except Exception as e:
         print(f"Error en register: {e}")
@@ -138,3 +149,23 @@ def verify():
     if not payload:
         return jsonify({'error': 'Token inválido o expirado'}), 401
     return jsonify({'valid': True, 'user': payload}), 200
+
+
+@bp.route('/programas', methods=['GET'])
+@cross_origin(
+    origins=ORIGINS,
+    methods=['GET'],
+    allow_headers=['Content-Type', 'Authorization'],
+)
+def listar_programas():
+    """
+    Devuelve todos los programas académicos para llenar el combo del registro.
+    """
+    rows = fetch_query("""
+        SELECT 
+            nombre_programa,
+            tipo      -- 'grado' o 'posgrado'
+        FROM programa_academico
+        ORDER BY nombre_programa
+    """)
+    return jsonify(rows), 200

@@ -162,3 +162,5 @@ class Participante:
             participante['roles'] = participante['roles'].split(',') if participante['roles'] else []
             participante['programas'] = participante['programas'].split(',') if participante['programas'] else []
         return rows
+    
+    

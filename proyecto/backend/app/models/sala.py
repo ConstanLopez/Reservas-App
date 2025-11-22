@@ -27,43 +27,52 @@ class Sala:
     @staticmethod
     def get_disponibles(fecha, id_turno, ci_participante):
         """
-        Obtiene salas disponibles para una fecha y turno específicos
-        Filtra según permisos del participante
+        Obtiene las salas disponibles para una fecha y turno específicos,
+        filtrando según permisos del participante.
         """
         from app.models.participante import Participante
-        
+
         # Obtener información del participante
         participante = Participante.get_by_ci(ci_participante)
-        if not participante: #si no existe el participante
+        if not participante:
             return []
-        
-        #se consulta el rol academico
+
+        # Verificar rol académico
         es_docente = Participante.es_docente(ci_participante)
         es_posgrado = Participante.es_posgrado(ci_participante)
-        
+
         # Construir condición de tipo de sala según permisos
         if es_docente:
-            tipo_condicion = "s.tipo_sala IN ('libre', 'docente', 'posgrado')"
+            tipo_condicion = "s.tipo_sala IN ('libre', 'docente')"
         elif es_posgrado:
             tipo_condicion = "s.tipo_sala IN ('libre', 'posgrado')"
         else:
             tipo_condicion = "s.tipo_sala = 'libre'"
-        
+
         query = f"""
-            SELECT s.*, e.direccion, e.departamento,
-                   CASE WHEN r.id_reserva IS NULL THEN 1 ELSE 0 END as disponible
+            SELECT 
+                s.nombre_sala,
+                s.edificio,
+                s.capacidad,
+                s.tipo_sala,
+                e.direccion,
+                e.departamento
             FROM sala s
             JOIN edificio e ON s.edificio = e.nombre_edificio
-            LEFT JOIN reserva r ON s.nombre_sala = r.nombre_sala 
-                                AND s.edificio = r.edificio
-                                AND r.fecha = %s
-                                AND r.id_turno = %s
-                                AND r.estado = 'activa'
-            WHERE {tipo_condicion}
-            HAVING disponible = 1
-            ORDER BY s.edificio, s.nombre_sala
+            LEFT JOIN reserva r 
+                ON r.nombre_sala = s.nombre_sala
+                AND r.edificio = s.edificio
+                AND r.fecha = %s
+                AND r.id_turno = %s
+                AND r.estado = 'activa'
+            WHERE 
+                {tipo_condicion}
+                AND r.id_reserva IS NULL   -- clave: solo salas sin reserva activa
+            ORDER BY s.edificio, s.nombre_sala;
         """
+
         return fetch_query(query, (fecha, id_turno))
+
     
     @staticmethod
     def puede_reservar(nombre_sala, edificio, ci_participante):
@@ -86,7 +95,7 @@ class Sala:
                 return True, "OK"
             return False, "Solo docentes pueden reservar esta sala"
         elif tipo == 'posgrado':
-            if es_docente or es_posgrado:
+            if es_posgrado:
                 return True, "OK"
             return False, "Solo docentes o estudiantes de posgrado pueden reservar esta sala"
         

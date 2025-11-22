@@ -1,7 +1,7 @@
 services:
   db:
     image: mysql:5.7
-    container_name: reservasapp-db
+    container_name: reservasApp-db
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword

@@ -198,7 +198,7 @@ export default function AdminPanel() {
             { header: "Fecha fin", field: "fecha_fin" },
           ]}
           formFields={[
-            { name: "ci_participante", label: "CI participante", type: "number", readOnlyInEdit: true },
+            { name: "ci_participante", label: "CI participante", type: "text", readOnlyInEdit: true },
             { name: "fecha_inicio", label: "Fecha inicio", type: "date" },
             { name: "fecha_fin", label: "Fecha fin", type: "date" },
           ]}

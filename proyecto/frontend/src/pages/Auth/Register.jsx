@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Alert } from 'react-bootstrap';
 import '../../styles/estilos.css'; 
 import { useAuth } from '../../context/AuthContext';
 
 export function Register() {
+    
     const [formData, setFormData] = useState({
         ci: '',
         nombre: '',
@@ -20,6 +21,25 @@ export function Register() {
     
     const { register } = useAuth();
     const navigate = useNavigate();
+
+
+    const [programas, setProgramas] = useState([]);
+    
+
+  useEffect(() => {
+    const fetchProgramas = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/auth/programas');
+        const data = await res.json();
+        setProgramas(data);
+      } catch (err) {
+        console.error(err);
+        setError('No se pudieron cargar los programas académicos');
+      }
+    };
+    fetchProgramas();
+  }, []);
+
 
     const handleChange = (e) => {
         setFormData({
@@ -57,6 +77,8 @@ export function Register() {
     nombre_programa: formData.nombre_programa,
     rol: formData.rol
   };
+
+
 
   console.log('payload register →', payload); // 👈 LOG CLAVE
 
@@ -120,17 +142,24 @@ export function Register() {
                     
 
                     <div className="mb-3">
-                        <label htmlFor="nombre_programa" className="form-label fw-bold">Programa Academico:</label>
-                        <input 
+                        <label htmlFor="nombre_programa" className="form-label fw-bold">
+                            Programa Académico:
+                        </label>
+                        <select
                             name="nombre_programa"
-                            value={formData.nombre_programa} 
-                            onChange={handleChange} 
-                            type="text" 
-                            className="form-control" 
-                            placeholder="Ingenieria Infórmatica" 
                             id="nombre_programa"
+                            className="form-control"
+                            value={formData.nombre_programa}
+                            onChange={handleChange}
                             required
-                        />
+                        >
+                            <option value="">Selecciona un programa</option>
+                            {programas.map((p) => (
+                            <option key={p.nombre_programa} value={p.nombre_programa}>
+                                {p.nombre_programa} {p.tipo ? `(${p.tipo})` : ''}
+                            </option>
+                            ))}
+                        </select>
                     </div>
 
 

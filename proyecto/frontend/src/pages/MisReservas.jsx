@@ -72,12 +72,13 @@ export default function MisReservas() {
 
   const reservasFiltradas = reservas.filter(reserva => {
     const hoy = new Date().toISOString().split('T')[0];
-    const fechaReserva = reserva.fecha;
+    const fechaReserva = new Date(reserva.fecha);
+    const fechaReservaISO = fechaReserva.toISOString().split('T')[0];
 
     if (filtro === 'activas') {
-      return reserva.estado === 'activa' && fechaReserva >= hoy;
+      return reserva.estado === 'activa' && fechaReservaISO >= hoy;
     } else if (filtro === 'pasadas') {
-      return fechaReserva < hoy;
+      return fechaReservaISO < hoy;
     }
     return true; // 'todas'
   });
@@ -105,6 +106,17 @@ export default function MisReservas() {
     );
   }
 
+  const formatFechaReserva = (f) => {
+  if (!f) return "—";
+
+  const d = new Date(f); // "Sun, 23 Nov 2025 00:00:00 GMT"
+
+  const dia = String(d.getUTCDate()).padStart(2, "0");
+  const mes = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const anio = d.getUTCFullYear();
+
+  return `${dia}/${mes}/${anio}`;
+  };
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -185,10 +197,10 @@ export default function MisReservas() {
                 </div>
                 <div className="card-body">
                   <div className="mb-2">
-                    <strong>📅 Fecha:</strong> {new Date(reserva.fecha + 'T00:00:00').toLocaleDateString('es-ES')}
+                    <strong>📅 Fecha:</strong> {" "}{formatFechaReserva(reserva.fecha)}
                   </div>
                   <div className="mb-2">
-                    <strong>🕐 Horario:</strong> {reserva.hora_inicio} - {reserva.hora_fin}
+                    <strong>🕐 Horario:</strong> {reserva.hora_inicio_rango || reserva.hora_inicio} - {reserva.hora_fin_rango || reserva.hora_fin}
                   </div>
                   <div className="mb-2">
                     <strong>👥 Capacidad:</strong> {reserva.capacidad} personas
@@ -206,6 +218,20 @@ export default function MisReservas() {
                     </div>
                   </div>
                 </div>
+
+                {Array.isArray(reserva.participantes) && reserva.participantes.length > 0 && (
+    <div className="mt-3">
+      <strong>👥 Participantes:</strong>
+      <ul className="mb-0">
+        {reserva.participantes.map((p) => (
+          <li key={p.ci}>
+            {p.nombre} {p.apellido} ({p.ci})
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+                
                 {reserva.estado === 'activa' && reserva.fecha >= new Date().toISOString().split('T')[0] && (
                   <div className="card-footer bg-white">
                     <button
