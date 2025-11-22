@@ -160,9 +160,7 @@ class Participante:
 
             email_actual = participante_actual[0]["email"]
 
-            # ---------------------------------------------------------
             # 2. Actualizar datos básicos del participante
-            # ---------------------------------------------------------
             valid_fields = {"nombre", "apellido", "email", "rol_sistema"}
             fields = []
             values = []
@@ -177,9 +175,7 @@ class Participante:
                 query = f"UPDATE participante SET {', '.join(fields)} WHERE ci = %s"
                 execute_query(query, tuple(values))
 
-            # ---------------------------------------------------------
-            # 3. Si cambia el email → actualizar tabla login también
-            # ---------------------------------------------------------
+            # 3. Si cambia el email: actualizar tabla login también
             if "email" in data and data["email"] and data["email"] != email_actual:
                 nuevo_email = data["email"]
 
@@ -191,9 +187,7 @@ class Participante:
 
                 email_actual = nuevo_email  # actualizar referencia
 
-            # ---------------------------------------------------------
             # 4. Actualizar password si viene
-            # ---------------------------------------------------------
             if data.get("password"):
                 from app.utils.auth_utils import hash_password
                 hashed = hash_password(data["password"])
@@ -202,9 +196,7 @@ class Participante:
                     (hashed, email_actual)
                 )
 
-            # ---------------------------------------------------------
             # 5. Actualizar programa académico y rol académico
-            # ---------------------------------------------------------
             if data.get("nombre_programa") or data.get("rol_academico"):
 
                 nombre_programa = data.get("nombre_programa")
