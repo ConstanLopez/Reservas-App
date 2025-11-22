@@ -2,9 +2,9 @@ SET NAMES utf8mb4;
 SET CHARACTER SET utf8mb4;
 SET collation_connection = 'utf8mb4_general_ci';
 
--- INSERT para tabla login (10 registros + admin)
+-- INSERT para tabla login
 INSERT INTO login (correo, contrasena) VALUES
-('admin@ucu.edu.uy', 'Admin123!'),                 -- ADMIN
+('admin@ucu.edu.uy', 'Admin123!'),
 ('juan.perez@universidad.edu.uy', 'Pass123!'),
 ('maria.gonzalez@universidad.edu.uy', 'Secure456'),
 ('carlos.rodriguez@universidad.edu.uy', 'MyPass789'),
@@ -16,9 +16,9 @@ INSERT INTO login (correo, contrasena) VALUES
 ('martin.diaz@universidad.edu.uy', 'Martin123'),
 ('valentina.ruiz@universidad.edu.uy', 'Vale456!');
 
--- INSERT para tabla participante (10 registros + admin)
-INSERT INTO participante (ci, nombre, apellido, email, rol) VALUES
-(99999999, 'Administrador', 'Sistema', 'admin@ucu.edu.uy', 'admin'),  -- ADMIN
+-- INSERT para tabla participante
+INSERT INTO participante (ci, nombre, apellido, email, rol_sistema) VALUES
+(99999999, 'Administrador', 'Sistema', 'admin@ucu.edu.uy', 'admin'),
 (12345678, 'Juan', 'Pérez', 'juan.perez@universidad.edu.uy', 'usuario'),
 (23456789, 'María', 'González', 'maria.gonzalez@universidad.edu.uy', 'usuario'),
 (34567890, 'Carlos', 'Rodríguez', 'carlos.rodriguez@universidad.edu.uy', 'usuario'),
@@ -30,7 +30,7 @@ INSERT INTO participante (ci, nombre, apellido, email, rol) VALUES
 (90123456, 'Martín', 'Díaz', 'martin.diaz@universidad.edu.uy', 'usuario'),
 (11223344, 'Valentina', 'Ruiz', 'valentina.ruiz@universidad.edu.uy', 'usuario');
 
--- INSERT para tabla facultad (10 registros)
+-- INSERT para tabla facultad
 INSERT INTO facultad (id_facultad, nombre) VALUES
 (1, 'Facultad de Ingeniería'),
 (2, 'Facultad de Medicina'),
@@ -43,7 +43,7 @@ INSERT INTO facultad (id_facultad, nombre) VALUES
 (9, 'Facultad de Veterinaria'),
 (10, 'Facultad de Agronomía');
 
--- INSERT para tabla programa_academico (10 registros)
+-- INSERT para tabla programa_academico
 INSERT INTO programa_academico (nombre_programa, id_facultad, tipo) VALUES
 ('Ingeniería en Sistemas', 1, 'grado'),
 ('Medicina General', 2, 'grado'),
@@ -56,8 +56,8 @@ INSERT INTO programa_academico (nombre_programa, id_facultad, tipo) VALUES
 ('Doctorado en Economía', 4, 'posgrado'),
 ('Maestría en Matemáticas', 5, 'posgrado');
 
--- INSERT para tabla participante_programa_academico (10 registros)
-INSERT INTO participante_programa_academico (ci_participante, nombre_programa, rol) VALUES
+-- INSERT para tabla participante_programa_academico
+INSERT INTO participante_programa_academico (ci_participante, nombre_programa, rol_academico) VALUES
 (12345678, 'Ingeniería en Sistemas', 'alumno'),
 (23456789, 'Medicina General', 'alumno'),
 (34567890, 'Derecho', 'docente'),
@@ -69,7 +69,7 @@ INSERT INTO participante_programa_academico (ci_participante, nombre_programa, r
 (90123456, 'Doctorado en Economía', 'alumno'),
 (11223344, 'Maestría en Matemáticas', 'alumno');
 
--- INSERT para tabla edificio (10 registros)
+-- INSERT para tabla edificio
 INSERT INTO edificio (nombre_edificio, direccion, departamento) VALUES
 ('Edificio Central', 'Av. 18 de Julio 1234', 'Montevideo'),
 ('Edificio Norte', 'Bulevar Artigas 567', 'Montevideo'),
@@ -82,7 +82,7 @@ INSERT INTO edificio (nombre_edificio, direccion, departamento) VALUES
 ('Edificio Posgrado', 'Dr. Tristán Narvaja 1011', 'Montevideo'),
 ('Anexo A', 'Colonia 1213', 'Montevideo');
 
--- INSERT para tabla sala (10 registros)
+-- INSERT para tabla sala
 INSERT INTO sala (nombre_sala, edificio, capacidad, tipo_sala) VALUES
 ('Sala 101', 'Edificio Central', 30, 'libre'),
 ('Sala 202', 'Edificio Norte', 50, 'docente'),
@@ -95,7 +95,7 @@ INSERT INTO sala (nombre_sala, edificio, capacidad, tipo_sala) VALUES
 ('Sala Seminario', 'Edificio Posgrado', 15, 'posgrado'),
 ('Sala 102', 'Anexo A', 45, 'libre');
 
--- INSERT para tabla turno (15 registros)
+-- INSERT para tabla turno
 INSERT INTO turno (hora_inicio, hora_fin) VALUES
 ('08:00:00', '09:00:00'),
 ('09:00:00', '10:00:00'),
@@ -113,7 +113,7 @@ INSERT INTO turno (hora_inicio, hora_fin) VALUES
 ('21:00:00', '22:00:00'),
 ('22:00:00', '23:00:00');
 
--- INSERT para tabla reserva (10 registros)
+-- INSERT para tabla reserva
 INSERT INTO reserva (nombre_sala, edificio, fecha, id_turno, estado) VALUES
 ('Sala 101', 'Edificio Central', '2024-11-15', 1, 'activa'),
 ('Sala 202', 'Edificio Norte', '2024-11-16', 2, 'activa'),
@@ -126,7 +126,7 @@ INSERT INTO reserva (nombre_sala, edificio, fecha, id_turno, estado) VALUES
 ('Sala Seminario', 'Edificio Posgrado', '2024-11-23', 9, 'activa'),
 ('Sala 102', 'Anexo A', '2024-11-24', 10, 'activa');
 
--- INSERT para tabla reserva_participante (10 registros)
+-- INSERT para tabla reserva_participante
 INSERT INTO reserva_participante (ci_participante, id_reserva, fecha_solicitud_reserva, asistencia) VALUES
 (12345678, 1, '2024-11-10', TRUE),
 (23456789, 2, '2024-11-11', TRUE),
@@ -139,7 +139,7 @@ INSERT INTO reserva_participante (ci_participante, id_reserva, fecha_solicitud_r
 (90123456, 9, '2024-11-18', TRUE),
 (11223344, 10, '2024-11-19', TRUE);
 
--- INSERT para tabla sancion_participante (10 registros)
+-- INSERT para tabla sancion_participante
 INSERT INTO sancion_participante (ci_participante, fecha_inicio, fecha_fin) VALUES
 (45678901, '2024-11-01', '2024-11-08'),
 (56789012, '2024-11-05', '2024-11-12'),
@@ -151,3 +151,4 @@ INSERT INTO sancion_participante (ci_participante, fecha_inicio, fecha_fin) VALU
 (89012345, '2024-08-15', '2024-08-22'),
 (90123456, '2024-08-20', '2024-08-27'),
 (11223344, '2024-07-01', '2024-07-08');
+

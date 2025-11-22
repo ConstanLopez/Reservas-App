@@ -146,14 +146,24 @@ class Participante:
         """
         Actualizar participante desde panel admin.
         Puede actualizar:
-        - Datos personales: nombre, apellido, email
-        - rol_sistema: admin/usuario (para acceder al panel)
-        - rol_academico: alumno/docente (en su carrera)
-        - password (opcional)
+        - Datos personales: nombre, apellido, email, rol_sistema
+        - Login (si cambia el email o password)
+        - Programa académico / rol académico
         """
         try:
-            # 1. Actualizar datos básicos del participante
-            valid_fields = {'nombre', 'apellido', 'email', 'rol_sistema'}
+            # 1. Obtener datos actuales (incluye email)
+            participante_actual = fetch_query(
+                "SELECT * FROM participante WHERE ci = %s", (ci,)
+            )
+            if not participante_actual:
+                return False, "Participante no encontrado"
+
+            email_actual = participante_actual[0]["email"]
+
+            # ---------------------------------------------------------
+            # 2. Actualizar datos básicos del participante
+            # ---------------------------------------------------------
+            valid_fields = {"nombre", "apellido", "email", "rol_sistema"}
             fields = []
             values = []
 
@@ -167,45 +177,83 @@ class Participante:
                 query = f"UPDATE participante SET {', '.join(fields)} WHERE ci = %s"
                 execute_query(query, tuple(values))
 
-            # 2. Actualizar password si viene
+            # ---------------------------------------------------------
+            # 3. Si cambia el email → actualizar tabla login también
+            # ---------------------------------------------------------
+            if "email" in data and data["email"] and data["email"] != email_actual:
+                nuevo_email = data["email"]
+
+                # Actualizar correo en tabla login
+                execute_query(
+                    "UPDATE login SET correo = %s WHERE correo = %s",
+                    (nuevo_email, email_actual)
+                )
+
+                email_actual = nuevo_email  # actualizar referencia
+
+            # ---------------------------------------------------------
+            # 4. Actualizar password si viene
+            # ---------------------------------------------------------
             if data.get("password"):
                 from app.utils.auth_utils import hash_password
-                result = fetch_query("SELECT email FROM participante WHERE ci = %s", (ci,))
-                if result:
-                    email = result[0]['email']
-                    hashed = hash_password(data["password"])
-                    execute_query("UPDATE login SET contrasena = %s WHERE correo = %s", (hashed, email))
+                hashed = hash_password(data["password"])
+                execute_query(
+                    "UPDATE login SET contrasena = %s WHERE correo = %s",
+                    (hashed, email_actual)
+                )
 
-            # 3. Actualizar ROL ACADÉMICO si viene
-            if data.get("rol_academico"):
-                # Primero verificar si ya tiene un programa académico
+            # ---------------------------------------------------------
+            # 5. Actualizar programa académico y rol académico
+            # ---------------------------------------------------------
+            if data.get("nombre_programa") or data.get("rol_academico"):
+
+                nombre_programa = data.get("nombre_programa")
+                rol_academico = data.get("rol_academico")
+
+                # ¿Ya tiene un programa asignado?
                 existing = fetch_query(
                     "SELECT * FROM participante_programa_academico WHERE ci_participante = %s",
                     (ci,)
                 )
-                
+
                 if existing:
-                    # Actualizar el rol académico existente
-                    execute_query(
-                        """UPDATE participante_programa_academico 
-                           SET rol_academico = %s 
-                           WHERE ci_participante = %s""",
-                        (data['rol_academico'], ci)
-                    )
-                elif data.get("nombre_programa"):
-                    # Crear nuevo registro si no existe
-                    execute_query(
-                        """INSERT INTO participante_programa_academico 
-                           (ci_participante, nombre_programa, rol_academico) 
-                           VALUES (%s, %s, %s)""",
-                        (ci, data['nombre_programa'], data['rol_academico'])
-                    )
+                    # Ya existe → actualizar
+                    update_fields = []
+                    values = []
+
+                    if nombre_programa:
+                        update_fields.append("nombre_programa = %s")
+                        values.append(nombre_programa)
+
+                    if rol_academico:
+                        update_fields.append("rol_academico = %s")
+                        values.append(rol_academico)
+
+                    if update_fields:
+                        values.append(ci)
+                        query = f"""
+                            UPDATE participante_programa_academico
+                            SET {', '.join(update_fields)}
+                            WHERE ci_participante = %s
+                        """
+                        execute_query(query, tuple(values))
+
+                else:
+                    # No existe → insertar si hay ROL ACADÉMICO Y PROGRAMA
+                    if nombre_programa and rol_academico:
+                        execute_query(
+                            """INSERT INTO participante_programa_academico
+                            (ci_participante, nombre_programa, rol_academico)
+                            VALUES (%s, %s, %s)""",
+                            (ci, nombre_programa, rol_academico)
+                        )
 
             return True, "Participante actualizado correctamente"
 
         except Exception as e:
             print(f"Error en actualizar_por_admin: {e}")
             return False, str(e)
+
 
 
     @staticmethod
@@ -235,7 +283,7 @@ class Participante:
         - Rol académico (alumno/docente) si tiene
         """
         query = """
-            SELECT 
+            SELECT DISTINCT
                 p.ci, 
                 p.nombre, 
                 p.apellido, 
