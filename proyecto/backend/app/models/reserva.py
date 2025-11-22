@@ -293,12 +293,12 @@ class Reserva:
         """Obtiene todas las reservas con información detallada"""
         query = """
             SELECT r.*, 
-                   rp.ci_participante, rp.fecha_solicitud_reserva, rp.asistencia,
-                   s.capacidad, s.tipo_sala,
-                   e.direccion, e.departamento,
-                   TIME_FORMAT(t.hora_inicio, '%H:%i') AS hora_inicio,
-                    TIME_FORMAT(t.hora_fin, '%H:%i')   AS hora_fin,
-                   p.nombre, p.apellido, p.email
+                rp.ci_participante, rp.fecha_solicitud_reserva, rp.asistencia,
+                s.capacidad, s.tipo_sala,
+                e.direccion, e.departamento,
+                TIME_FORMAT(t.hora_inicio, '%H:%i') AS hora_inicio,
+                TIME_FORMAT(t.hora_fin, '%H:%i')   AS hora_fin,
+                p.nombre, p.apellido, p.email
             FROM reserva r
             JOIN reserva_participante rp ON r.id_reserva = rp.id_reserva
             JOIN sala s ON r.nombre_sala = s.nombre_sala AND r.edificio = s.edificio
@@ -307,4 +307,14 @@ class Reserva:
             JOIN participante p ON rp.ci_participante = p.ci
             ORDER BY r.fecha DESC, t.hora_inicio DESC
         """
-        return fetch_query(query)
+        todas = fetch_query(query)
+        
+        # Eliminar duplicados manteniendo solo la primera ocurrencia de cada id_reserva
+        vistas = set()
+        unicas = []
+        for reserva in todas:
+            if reserva['id_reserva'] not in vistas:
+                vistas.add(reserva['id_reserva'])
+                unicas.append(reserva)
+        
+        return unicas
