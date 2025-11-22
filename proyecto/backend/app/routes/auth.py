@@ -89,11 +89,11 @@ def login():
 
         # 3) Roles académicos (lo que ya tenías)
         roles_academicos = Auth.obtener_roles_usuario(usuario['ci'])
-        rol_academico = roles_academicos[0]['rol'] if roles_academicos else 'alumno'
+        rol_academico = roles_academicos[0]['rol_academico'] if roles_academicos else 'alumno'
         tipo_programa = roles_academicos[0]['tipo'] if roles_academicos else 'grado'
 
         # 4) Rol de sistema (para admin / usuario) -> viene de la tabla participante
-        rol_sistema = usuario.get('rol', 'usuario')  # p.rol, default 'usuario'
+        rol_sistema = usuario.get('rol_sistema', 'usuario')  # p.rol, default 'usuario'
 
         # 5) Payload para el JWT
         user_data = {
