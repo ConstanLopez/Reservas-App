@@ -58,16 +58,16 @@ INSERT INTO programa_academico (nombre_programa, id_facultad, tipo) VALUES
 
 -- INSERT para tabla participante_programa_academico
 INSERT INTO participante_programa_academico (ci_participante, nombre_programa, rol_academico) VALUES
-(12345678, 'Ingeniería en Sistemas', 'alumno'),
-(23456789, 'Medicina General', 'alumno'),
-(34567890, 'Derecho', 'docente'),
-(45678901, 'Contador Público', 'alumno'),
-(56789012, 'Licenciatura en Física', 'docente'),
-(67890123, 'Maestría en Ingeniería', 'alumno'),
-(78901234, 'Especialización Médica', 'alumno'),
-(89012345, 'Maestría en Derecho Penal', 'docente'),
-(90123456, 'Doctorado en Economía', 'alumno'),
-(11223344, 'Maestría en Matemáticas', 'alumno');
+('12345678', 'Ingeniería en Sistemas', 'alumno'),
+('23456789', 'Medicina General', 'alumno'),
+('34567890', 'Derecho', 'docente'),
+('45678901', 'Contador Público', 'alumno'),
+('56789012', 'Licenciatura en Física', 'docente'),
+('67890123', 'Maestría en Ingeniería', 'alumno'),
+('78901234', 'Especialización Médica', 'alumno'),
+('89012345', 'Maestría en Derecho Penal', 'docente'),
+('90123456', 'Doctorado en Economía', 'alumno'),
+('11223344', 'Maestría en Matemáticas', 'alumno');
 
 -- INSERT para tabla edificio
 INSERT INTO edificio (nombre_edificio, direccion, departamento) VALUES
@@ -95,7 +95,7 @@ INSERT INTO sala (nombre_sala, edificio, capacidad, tipo_sala) VALUES
 ('Sala Seminario', 'Edificio Posgrado', 15, 'posgrado'),
 ('Sala 102', 'Anexo A', 45, 'libre');
 
--- INSERT para tabla turno (15 registros)
+-- INSERT para tabla turno 
 INSERT INTO turno (id_turno, hora_inicio, hora_fin) VALUES
 (1, '08:00:00', '09:00:00'),
 (2, '09:00:00', '10:00:00'),
@@ -128,27 +128,27 @@ INSERT INTO reserva (nombre_sala, edificio, fecha, id_turno, estado) VALUES
 
 -- INSERT para tabla reserva_participante
 INSERT INTO reserva_participante (ci_participante, id_reserva, fecha_solicitud_reserva, asistencia) VALUES
-(12345678, 1, '2024-11-10', TRUE),
-(23456789, 2, '2024-11-11', TRUE),
-(34567890, 3, '2024-11-12', TRUE),
-(45678901, 4, '2024-11-13', FALSE),
-(56789012, 5, '2024-11-14', FALSE),
-(67890123, 6, '2024-11-15', TRUE),
-(78901234, 7, '2024-11-16', FALSE),
-(89012345, 8, '2024-11-17', TRUE),
-(90123456, 9, '2024-11-18', TRUE),
-(11223344, 10, '2024-11-19', TRUE);
+('12345678', 1, '2024-11-10', TRUE),
+('23456789', 2, '2024-11-11', TRUE),
+('34567890', 3, '2024-11-12', TRUE),
+('45678901', 4, '2024-11-13', FALSE),
+('56789012', 5, '2024-11-14', FALSE),
+('67890123', 6, '2024-11-15', TRUE),
+('78901234', 7, '2024-11-16', FALSE),
+('89012345', 8, '2024-11-17', TRUE),
+('90123456', 9, '2024-11-18', TRUE),
+('11223344', 10, '2024-11-19', TRUE);
 
 -- INSERT para tabla sancion_participante
 INSERT INTO sancion_participante (ci_participante, fecha_inicio, fecha_fin) VALUES
-(45678901, '2024-11-01', '2024-11-08'),
-(56789012, '2024-11-05', '2024-11-12'),
-(78901234, '2024-11-10', '2024-11-17'),
-(12345678, '2024-10-15', '2024-10-22'),
-(23456789, '2024-10-20', '2024-10-27'),
-(34567890, '2024-09-01', '2024-09-08'),
-(67890123, '2024-09-10', '2024-09-17'),
-(89012345, '2024-08-15', '2024-08-22'),
-(90123456, '2024-08-20', '2024-08-27'),
-(11223344, '2024-07-01', '2024-07-08');
+('45678901', '2024-11-01', '2024-11-08'),
+('56789012', '2024-11-05', '2024-11-12'),
+('78901234', '2024-11-10', '2024-11-17'),
+('12345678', '2024-10-15', '2024-10-22'),
+('23456789', '2024-10-20', '2024-10-27'),
+('34567890', '2024-09-01', '2024-09-08'),
+('67890123', '2024-09-10', '2024-09-17'),
+('89012345', '2024-08-15', '2024-08-22'),
+('90123456', '2024-08-20', '2024-08-27'),
+('11223344', '2024-07-01', '2024-07-08');
 

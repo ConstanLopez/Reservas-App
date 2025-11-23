@@ -6,7 +6,6 @@ from flask_cors import cross_origin
 bp = Blueprint('admin_turnos', __name__, url_prefix='/api/admin/turnos')
 ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
-# GET: listar todos los turnos
 @bp.route('/', methods=['GET', 'OPTIONS'])
 @cross_origin(origins=ORIGINS,
               methods=['GET', 'OPTIONS'],
@@ -14,6 +13,7 @@ ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
               expose_headers=['Authorization'])
 @admin_required
 def listar_turnos(current_user):
+    #Listamos todos los turnos disponibles
     if request.method == 'OPTIONS':
         return ('', 204)
 
@@ -23,10 +23,10 @@ def listar_turnos(current_user):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# POST: crear turno (solo admin)
 @bp.post('/')
 @admin_required
 def crear_turno(current_user):
+    #Creamos un nuevo turno
     try:
         data = request.get_json()
         required = ['hora_inicio', 'hora_fin']
@@ -40,11 +40,11 @@ def crear_turno(current_user):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# PUT: actualizar turno (solo admin)
-# Modifica horarios de un turno existente
+
 @bp.put('/<int:id_turno>')
 @admin_required
 def actualizar_turno(current_user, id_turno):
+    #Actualizamos un turno existente
     try:
         data = request.get_json()
         required = ['hora_inicio', 'hora_fin']
@@ -58,11 +58,10 @@ def actualizar_turno(current_user, id_turno):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# DELETE: eliminar turno (solo admin)
-# Elimina un turno si no tiene reservas asociadas
 @bp.delete('/<int:id_turno>')
 @admin_required
 def eliminar_turno(current_user, id_turno):
+    #Eliminamos un turno existente
     try:
         ok, msg = Turno.eliminar(id_turno)
         status = 200 if ok else 400

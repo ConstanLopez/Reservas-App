@@ -110,11 +110,11 @@ class Participante:
             rol_sistema = data.get("rol_sistema", "usuario")
             password = data.get("password")
 
-            # 🔐 0. Para un alta nueva, exigimos password
+            #Controles y flujo, para el usuario nuevo
             if not password:
                 return None, "Para crear un nuevo participante es necesario indicar un password."
 
-            # 1️⃣ Crear LOGIN primero (por el FK participante.email → login.correo)
+            #Crear login
             from app.utils.auth_utils import hash_password
             password_hash = hash_password(password)
 
@@ -125,7 +125,7 @@ class Participante:
             if not ok_login:
                 return None, "No se pudo crear el login (correo duplicado u otro error en BD)."
 
-            # 2️⃣ Crear PARTICIPANTE
+            # Creacion del participante
             ok_participante = execute_query(
                 """
                 INSERT INTO participante (ci, nombre, apellido, email, rol_sistema)
@@ -134,11 +134,11 @@ class Participante:
                 (ci, nombre, apellido, email, rol_sistema)
             )
             if not ok_participante:
-                # rollback mínimo: si no pude crear el participante, borro el login recién creado
+                # rollback : si no se pudo  crear el participante, borro el login creado
                 execute_query("DELETE FROM login WHERE correo = %s", (email,))
                 return None, "No se pudo crear el participante (CI duplicada u otro error en BD)."
 
-            # 3️⃣ Asignar PROGRAMA ACADÉMICO (opcional)
+            # Asignar el programa academico
             nombre_programa = data.get("nombre_programa")
             rol_academico = data.get("rol_academico")
 
@@ -152,7 +152,6 @@ class Participante:
                     (ci, nombre_programa, rol_academico)
                 )
                 if not ok_prog:
-                    # Podés decidir si devolvés warning o error. Yo devuelvo error “suave”.
                     return None, (
                         "El participante se creó, pero hubo un error al asociarlo al programa académico."
                     )
@@ -172,7 +171,7 @@ class Participante:
             # Obtener email antes de eliminar
             p = Participante.get_by_ci(ci)
             if p:
-                # Eliminar login (el CASCADE eliminará el participante)
+                # Eliminar login (el CASCADE elimina el participante)
                 execute_query("DELETE FROM login WHERE correo = %s", (p['email'],))
                 return True, "Participante eliminado correctamente"
             else:
@@ -196,7 +195,7 @@ class Participante:
         NOTA: el CI no se cambia (en el front lo tenés readOnlyInEdit).
         """
         try:
-            # 0️⃣ Traer datos actuales
+            #Trigo los datos actuales
             actual = Participante.get_by_ci(ci)
             if not actual:
                 return False, "Participante no encontrado"
@@ -207,11 +206,11 @@ class Participante:
             rol_sistema_nuevo = data.get("rol_sistema", actual["rol_sistema"])
             password_nuevo = data.get("password")  # puede venir vacío
 
-            # 1️⃣ Si cambió el email, hay que mantener la integridad con login
+            # Comprueba si se cambio el mail, para mantener la integridad con el login
             email_viejo = actual["email"]
 
             if email_nuevo != email_viejo:
-                # Tomamos el hash de la contraseña actual
+                # Obtenemos el hash de la contraseña del login viejo
                 filas_login = fetch_query(
                     "SELECT contrasena FROM login WHERE correo = %s",
                     (email_viejo,)
@@ -229,7 +228,7 @@ class Participante:
                 if not ok:
                     return False, "No se pudo crear el nuevo login (correo ya usado?)"
 
-                # Actualizamos participante para que apunte al nuevo correo
+                # Actualizamos participante para que referencie al nuevo correo
                 ok = execute_query(
                     "UPDATE participante SET email = %s WHERE ci = %s",
                     (email_nuevo, ci)
@@ -237,13 +236,13 @@ class Participante:
                 if not ok:
                     return False, "No se pudo actualizar el email del participante"
 
-                # Borramos el login viejo (ya nadie lo referencia)
+                # Borramos el login viejo 
                 execute_query(
                     "DELETE FROM login WHERE correo = %s",
                     (email_viejo,)
                 )
 
-            # 2️⃣ Actualizar nombre, apellido y rol_sistema
+            # Actualizamos  nombre, apellido y rol_sistema
             ok = execute_query(
                 """
                 UPDATE participante
@@ -257,7 +256,7 @@ class Participante:
             if not ok:
                 return False, "No se pudieron actualizar los datos básicos del participante"
 
-            # 3️⃣ Si vino un password nuevo, actualizarlo en login
+            # Si el boy ,amda contraseña, se  actualiza en login
             if password_nuevo:
                 from app.utils.auth_utils import hash_password
                 nuevo_hash = hash_password(password_nuevo)
@@ -266,12 +265,11 @@ class Participante:
                     (nuevo_hash, email_nuevo)
                 )
 
-            # 4️⃣ Actualizar programa académico / rol_acad (si se mandan)
+            # Actualizar programa académico y rol_academico
             nombre_programa = data.get("nombre_programa")
             rol_academico = data.get("rol_academico")
 
             if nombre_programa and rol_academico:
-                # ¿Ya tiene fila en participante_programa_academico?
                 filas_prog = fetch_query(
                     """
                     SELECT id_alumno_programa
@@ -293,7 +291,7 @@ class Participante:
                         (nombre_programa, rol_academico, ci)
                     )
                 else:
-                    # No tenía programa → insert
+                    # Si no  tenía programa hacemos un insert
                     execute_query(
                         """
                         INSERT INTO participante_programa_academico

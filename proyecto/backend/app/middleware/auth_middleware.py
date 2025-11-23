@@ -30,7 +30,7 @@ def token_required(f): #exige que el usuario tenga este autneticado con un JWT v
     
     return decorated
 
-def admin_required(f):
+def admin_required(f): #Este decorador, es para marcar las rutas que solo pueden ser accedidas por administradores
     """Decorador para rutas que requieren rol de administrador"""
     @wraps(f)
     @token_required

@@ -10,6 +10,7 @@ bp = Blueprint("participantes", __name__, url_prefix="/api/participantes")
     allow_headers=["Content-Type","Authorization"],
     expose_headers=["Authorization"]
 )
+# Endpoint para registrar un nuevo participante
 def register():
     if request.method == "OPTIONS":
         return ("", 204)  # responde OK al preflight

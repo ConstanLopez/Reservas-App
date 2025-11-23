@@ -137,12 +137,12 @@ def cancelar_reserva(current_user, id_reserva):
         ci = current_user['ci'] 
         success, mensaje = Reserva.cancelar(id_reserva, ci) # verifica si la reserva pertenece al usuario , si esta activa, actualiza el estado
         
-        if success: # se cancelo la reserva correctamente
+        if success:
             return jsonify({
                 'success': True,
                 'message': mensaje
             }), 200
-        else: # no se pudo cancelar la reserva
+        else: 
             return jsonify({
                 'success': False,
                 'message': mensaje

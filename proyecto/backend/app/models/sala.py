@@ -41,7 +41,7 @@ class Sala:
         es_docente = Participante.es_docente(ci_participante)
         es_posgrado = Participante.es_posgrado(ci_participante)
 
-        # Construir condición de tipo de sala según permisos
+        # Vemos las condiciones de tipo de sala según permisos
         if es_docente:
             tipo_condicion = "s.tipo_sala IN ('libre', 'docente')"
         elif es_posgrado:
@@ -79,7 +79,7 @@ class Sala:
         """Verifica si un participante tiene el permiso para poder  reservar una sala específica"""
         from app.models.participante import Participante
         
-        sala = Sala.get_by_nombre_edificio(nombre_sala, edificio) #se obtiene la sala
+        sala = Sala.get_by_nombre_edificio(nombre_sala, edificio) 
         if not sala:
             return False, "Sala no encontrada"
         #comprobar rol del paticipante

@@ -91,34 +91,34 @@ def login():
         return jsonify({'error': 'Email y contraseña son requeridos'}), 400
 
     try:
-        # 1) Buscar usuario en login + participante (incluye p.rol)
+        # Buscar usuario en login + participante (incluye p.rol)
         usuario = Auth.obtener_usuario_por_email(data['email'])
 
-        # 2) Validar contraseña
+        # Validamos la  contraseña
         if not usuario or not verify_password(data['password'], usuario['password_hash']):
             return jsonify({'error': 'Credenciales inválidas'}), 401
 
-        # 3) Roles académicos (lo que ya tenías)
+        # Obtenemos Roles académicos 
         roles_academicos = Auth.obtener_roles_usuario(usuario['ci'])
         rol_academico = roles_academicos[0]['rol_academico'] if roles_academicos else 'alumno'
         tipo_programa = roles_academicos[0]['tipo'] if roles_academicos else 'grado'
 
-        # 4) Rol de sistema (para admin / usuario) -> viene de la tabla participante
-        rol_sistema = usuario.get('rol_sistema', 'usuario')  # p.rol, default 'usuario'
+        # 4) Obtenemos el rol de sistema (admin/usuario)
+        rol_sistema = usuario.get('rol_sistema', 'usuario')  
 
-        # 5) Payload para el JWT
+        # Definimos el payload para el JWT
         user_data = {
             'correo': usuario['correo'],
             'ci': usuario['ci'],
             'nombre': usuario['nombre'],
             'apellido': usuario['apellido'],
-            'rol': rol_sistema,             # 👈 rol de sistema
+            'rol': rol_sistema,            
             'tipo_programa': tipo_programa,
-            'rol_academico': rol_academico  # opcional, por si lo necesitás luego
+            'rol_academico': rol_academico  
         }
         token = generate_token(user_data)
 
-        # 6) Respuesta al frontend
+        # Mandamos al frontend
         return jsonify({
             'message': 'Login exitoso',
             'token': token,
@@ -127,7 +127,7 @@ def login():
                 'nombre': usuario['nombre'],
                 'apellido': usuario['apellido'],
                 'email': usuario['correo'],
-                'rol': rol_sistema,              # 👈 acá el front ve 'admin' o 'usuario'
+                'rol': rol_sistema,              
                 'tipo_programa': tipo_programa,
                 'rol_academico': rol_academico
             }

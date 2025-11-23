@@ -21,7 +21,7 @@ class Reportes:
 
     @staticmethod
     def turnos_mas_demandados():
-        """Turnos con más reservas"""
+        """Turnos con más reservas, se usa time format por un tema con timedelta de python, para que no de error"""
         query = """
             SELECT t.id_turno,
                    TIME_FORMAT(t.hora_inicio, '%H:%i') AS hora_inicio,

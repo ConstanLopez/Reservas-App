@@ -3,33 +3,28 @@ CREATE DATABASE reservas_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE reservas_db;
 
 -- TABLA 1: LOGIN
--- Almacena credenciales de acceso
 CREATE TABLE login (
     correo VARCHAR(100) PRIMARY KEY,
     contrasena VARCHAR(255) NOT NULL
 );
 
 -- TABLA 2: PARTICIPANTE
--- Datos personales de usuarios (alumnos y docentes)
--- ⚠️ AGREGADO: campo 'rol' para admin/usuario
 CREATE TABLE participante (
     ci VARCHAR(20)  PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
-    rol_sistema ENUM('admin', 'usuario') DEFAULT 'usuario',  -- ✅ NUEVO CAMPO
+    rol_sistema ENUM('admin', 'usuario') DEFAULT 'usuario',  
     FOREIGN KEY (email) REFERENCES login(correo) ON DELETE CASCADE
 );
 
 -- TABLA 3: FACULTAD
--- Facultades de la universidad
 CREATE TABLE facultad (
     id_facultad INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL UNIQUE
 );
 
 -- TABLA 4: PROGRAMA_ACADEMICO
--- Carreras y posgrados
 CREATE TABLE programa_academico (
     nombre_programa VARCHAR(100) PRIMARY KEY,
     id_facultad INT NOT NULL,
@@ -38,7 +33,6 @@ CREATE TABLE programa_academico (
 );
 
 -- TABLA 5: PARTICIPANTE_PROGRAMA_ACADEMICO
--- Relación entre participantes y carreras (rol: alumno o docente)
 CREATE TABLE participante_programa_academico (
     id_alumno_programa INT AUTO_INCREMENT PRIMARY KEY,
     ci_participante VARCHAR(20) NOT NULL,
@@ -66,7 +60,6 @@ CREATE TABLE sala (
 );
 
 -- TABLA 8: TURNO
--- Horarios disponibles (bloques de 1 hora)
 CREATE TABLE turno (
     id_turno INT AUTO_INCREMENT PRIMARY KEY,
     hora_inicio TIME NOT NULL,
@@ -88,7 +81,6 @@ CREATE TABLE reserva (
 );
 
 -- TABLA 10: RESERVA_PARTICIPANTE
--- ⚠️ CORREGIDO: id_reserva es PRIMARY KEY (como espera tu código Python)
 CREATE TABLE reserva_participante (
     ci_participante VARCHAR(20) NOT NULL,
     id_reserva INT NOT NULL,
@@ -101,7 +93,6 @@ CREATE TABLE reserva_participante (
 );
 
 -- TABLA 11: SANCION_PARTICIPANTE
--- Sanciones por inasistencia (2 meses sin reservar)
 CREATE TABLE sancion_participante (
     id_sancion INT AUTO_INCREMENT PRIMARY KEY,
     ci_participante VARCHAR (20) NOT NULL,
@@ -109,9 +100,7 @@ CREATE TABLE sancion_participante (
     fecha_fin DATE NOT NULL,
     FOREIGN KEY (ci_participante) REFERENCES participante(ci) ON DELETE CASCADE
 );
--- ============================================
 -- USUARIO DE APLICACIÓN
--- ============================================
 CREATE USER IF NOT EXISTS 'appuser'@'%' IDENTIFIED BY 'apppass';
 GRANT ALL PRIVILEGES ON reservas_db.* TO 'appuser'@'%';
 FLUSH PRIVILEGES;

@@ -109,7 +109,7 @@ export default function MisReservas() {
   const formatFechaReserva = (f) => {
   if (!f) return "—";
 
-  const d = new Date(f); // "Sun, 23 Nov 2025 00:00:00 GMT"
+  const d = new Date(f); // Formato  "Sab, 23 Nov 2025 00:00:00 GMT"
 
   const dia = String(d.getUTCDate()).padStart(2, "0");
   const mes = String(d.getUTCMonth() + 1).padStart(2, "0");

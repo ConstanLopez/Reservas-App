@@ -31,7 +31,7 @@ class Reserva:
         """
         rows = fetch_query(query, (ci_participante,))
 
-        # 👉 Para cada reserva, adjuntamos la lista completa de participantes
+        # Para cada reserva, le sumamos  la lista completa de participantes que van a asistir en la reserva que se hace, ademas del titular
         for r in rows:
             r['participantes'] = Reserva.get_participantes_de_reserva(r['id_reserva'])
 
@@ -95,7 +95,7 @@ class Reserva:
         if not puede:
             return None, mensaje
 
-        #Flags para ver si aplica la regla de limite horario para las reservas
+        #Flags para ver si aplica la regla de limite horario para las reservas segun el rol academico
         es_docente = Participante.es_docente(ci_participante)
         es_posgrado = Participante.es_posgrado(ci_participante)
         sala = Sala.get_by_nombre_edificio(nombre_sala, edificio)
@@ -106,12 +106,12 @@ class Reserva:
             tipo_sala = sala['tipo_sala']  # 'libre', 'docente', 'posgrado'
             
             # Si es docente o posgrado Y está usando sala exclusiva (docente/posgrado),
-            # NO se aplican los límites de 2 horas ni de 3 reservas.
+            # NO se aplican los límites de 2 horas ni de 3 reservas semanales.
             if (es_docente and tipo_sala == 'docente') or (es_posgrado and tipo_sala == 'posgrado'):
                 aplica_limites = False
 
         # Si le aplican los límites, controlamos cuántas horas tiene ya reservadas ese día
-                # Si le aplican los límites, controlamos cuántas horas tiene ya reservadas
+        # Si le aplican los límites, controlamos cuántas horas tiene ya reservadas
         if aplica_limites:
             # Traemos todas las reservas de este participante (con tipo_sala incluido)
             reservas_participante = Reserva.get_by_participante(ci_participante)
@@ -121,7 +121,7 @@ class Reserva:
                 h2, m2 = map(int, hora_fin_str.split(':'))
                 return (h2*60 + m2 - (h1*60 + m1)) / 60.0
 
-            # --- NUEVO: decidir qué reservas cuentan para los límites ---
+            #Metodo para distinguir las reservas, teniendo en cuenta las restricciones, segun el tipo de sala y el rol academico
             def _cuenta_para_limites(r):
                 ts = r.get('tipo_sala')
 
@@ -136,7 +136,7 @@ class Reserva:
                 # El resto de las salas sí cuentan
                 return True
 
-            # 1) Horas ya reservadas ese día (solo reservas que cuentan)
+            # Restriccion de Horas ya reservadas ese día: (solo reservas que cuentan)
             reservas_mismo_dia = [
                 r for r in reservas_participante
                 if r['fecha'] == fecha
@@ -157,7 +157,7 @@ class Reserva:
                         r['hora_fin']
                     )
 
-            # 2) Horas de la nueva reserva (sea rango o turno)
+            # Horas de la nueva reserva (sea rango o turno)
             if hora_inicio_rango and hora_fin_rango:
                 horas_nueva = _horas_entre(hora_inicio_rango, hora_fin_rango)
             else:
@@ -167,13 +167,13 @@ class Reserva:
                     turno['hora_fin']
                 )
 
-            # 3) Validar máximo 2 horas por día
+            # Validar máximo 2 horas por día
             if horas_reservadas + horas_nueva > 2:
                 return None, "No puedes reservar más de 2 horas de sala en el mismo día."
 
-            # 4) Validar máximo 3 reservas activas en la semana
-            weekday = fecha.weekday()
-            week_start = fecha - timedelta(days=weekday)   # lunes
+            # Validar máximo 3 reservas activas en la semana
+            weekday = fecha.weekday() #el weekday en python va de 0 (lunes) a 6 (domingo)
+            week_start = fecha - timedelta(days=weekday)   # lunes 
             week_end   = week_start + timedelta(days=6)    # domingo
 
             reservas_misma_semana = [
@@ -245,12 +245,12 @@ class Reserva:
 
         print(participantes)
         for p in participantes:
-            # p viene como dict {ci: "...", nombre: "..."} desde el front
+            # p viene como dict {ci: "...", nombre: "..."}  en el payload de la request 
             if isinstance(p, dict):
                 ci_extra = (p.get('ci') or '').strip()
                 nombre_completo = (p.get('nombre') or '').strip()
             else:
-                # si llegara algo raro, lo ignoramos
+                # si no llega continuamos para que no se rompa
                 continue
 
             # si viene vacío, lo saltamos
@@ -271,7 +271,7 @@ class Reserva:
                     (ci_extra, id_reserva, fecha_hoy)
                 )
             else:
-                # Invitado que no está en participante → guardamos su nombre acá
+                # Invitado que no está en participante  guardamos su nombre para mostrarlo en las reservas luego
                 if ' ' in nombre_completo:
                     nombre_inv, apellido_inv = nombre_completo.split(' ', 1)
                 else:
@@ -289,7 +289,7 @@ class Reserva:
         """
         Cancela una reserva (solo si el usuario es participante y está activa)
         """
-        # 1) Traer la reserva
+        # Traer la reserva
         query_reserva = """
             SELECT *
             FROM reserva
@@ -301,7 +301,7 @@ class Reserva:
 
         reserva = rows[0]
 
-        # 2) Verificar que el usuario sea uno de los participantes de esa reserva
+        # Verificar que el usuario sea uno de los participantes de esa reserva
         participantes = Reserva.get_participantes_de_reserva(id_reserva)
         es_participante = any(
             str(p["ci"]) == str(ci_participante) 
@@ -311,15 +311,15 @@ class Reserva:
         if not es_participante:
             return False, "No tienes permiso para cancelar esta reserva"
 
-        # 3) Verificar estado de la reserva
+        # Verificar estado de la reserva
         if reserva['estado'] != 'activa':
             return False, f"No se puede cancelar una reserva con estado '{reserva['estado']}'"
 
-        # 4) No permitir cancelar reservas pasadas
+        # No permitir cancelar reservas pasadas
         if reserva['fecha'] < date.today():
             return False, "No se pueden cancelar reservas pasadas"
 
-        # 5) Actualizar el estado a cancelada
+        # Actualizar el estado a cancelada
         query_update = """
             UPDATE reserva 
             SET estado = 'cancelada'
@@ -357,7 +357,7 @@ class Reserva:
         Actualiza asistencia de todos los participantes de una reserva.
         Si nadie asistió, genera sanciones de 2 meses para todos.
         """
-        # 1) Traer todos los participantes de esa reserva
+        # Traer todos los participantes de esa reserva
         query_participantes = """
             SELECT ci_participante
             FROM reserva_participante
@@ -367,11 +367,9 @@ class Reserva:
         if not rows:
             return False, "No se encontraron participantes para esta reserva."
 
-        # Convertir la lista de asistencias del request a algo fácil de consultar
-        # ejemplo: {"12345678": True, "87654321": False}
         mapa_asistencias = {a["ci"]: bool(a.get("asistio", False)) for a in asistencias}
 
-        # 2) Actualizar asistencia en reserva_participante
+        # Actualizar asistencia en reserva_participante
         hubo_asistencia = False
         for row in rows:
             ci = row["ci_participante"]
@@ -387,11 +385,11 @@ class Reserva:
             if asistio:
                 hubo_asistencia = True
 
-        # 3) Si al menos uno asistió, no hay sanciones
+        # Si al menos uno asistió, no hay sanciones
             if hubo_asistencia:
                 return True, "Asistencia registrada correctamente. No se generaron sanciones."
 
-        # 4) Si nadie asistió → sanción de 2 meses para todos los participantes
+        # Si nadie asistió → sanción de 2 meses para todos los participantes
         from datetime import date, timedelta
         fecha_inicio = date.today()
         # Súper simple: 60 días como aproximación a 2 meses

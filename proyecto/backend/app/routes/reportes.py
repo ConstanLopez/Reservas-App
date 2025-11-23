@@ -9,7 +9,7 @@ bp = Blueprint('reportes', __name__, url_prefix='/api/reportes')
 def get_salas_mas_reservadas(current_user):
     """Obtiene las salas más reservadas"""
     try:
-        limit = 10  # Por defecto top 10
+        limit = 10  # Definimos mostrar las 10 salas mas reservadas
         datos = Reportes.salas_mas_reservadas(limit)
         return jsonify({
             'success': True,
@@ -115,10 +115,6 @@ def get_efectividad_reservas(current_user):
         }), 200
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
-
-# ========================================
-# CONSULTAS ADICIONALES
-# ========================================
 
 @bp.get('/horarios-pico')
 @token_required

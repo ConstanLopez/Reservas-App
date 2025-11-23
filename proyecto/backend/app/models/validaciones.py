@@ -20,22 +20,22 @@ class ValidacionesReserva:
         from app.models.participante import Participante
         from app.models.sala import Sala
 
-        # 1. Verificar sanción activa
+        # Verificamos si tiene una sanción activa
         if Participante.tiene_sancion_activa(ci_participante):
             sancion = Participante.get_sancion_activa(ci_participante)
             return False, f"Tienes una sanción activa hasta {sancion['fecha_fin']}"
 
-        # 2. Obtener información de la sala
+        # Obtenemos la  información de la sala
         sala = Sala.get_by_nombre_edificio(nombre_sala, edificio)
         if not sala:
             return False, "Sala no encontrada"
 
-        # 3. Verificar permisos sobre tipo de sala (libre, docente, posgrado)
+        # Verificar permisos sobre tipo de sala (libre, docente, posgrado)
         puede, mensaje = Sala.puede_reservar(nombre_sala, edificio, ci_participante)
         if not puede:
             return False, mensaje
 
-        # 4. Determinar si aplican restricciones
+        # Determinar si aplican restricciones
         es_docente = Participante.es_docente(ci_participante)
         es_posgrado = Participante.es_posgrado(ci_participante)
         sala_exclusiva = sala['tipo_sala'] in ['docente', 'posgrado']
@@ -47,7 +47,7 @@ class ValidacionesReserva:
         else:
             sin_restricciones = False
 
-        # 5. Validaciones generales si no son docentes/posgrado en salas exclusivas
+        # Validaciones generales si no son docentes/posgrado en salas exclusivas
         if not sin_restricciones:
             # Límite de 2 horas diarias por edificio
             puede, mensaje = ValidacionesReserva._validar_limite_horas_diarias(
@@ -105,8 +105,8 @@ class ValidacionesReserva:
         Valida que el participante no tenga más de 3 reservas activas en la semana actual.
         """
         hoy = datetime.now().date()
-        inicio_semana = hoy - timedelta(days=hoy.weekday())  # Lunes
-        fin_semana = inicio_semana + timedelta(days=6)  # Domingo
+        inicio_semana = hoy - timedelta(days=hoy.weekday())  
+        fin_semana = inicio_semana + timedelta(days=6)  
 
         query = """
             SELECT COUNT(*) as count

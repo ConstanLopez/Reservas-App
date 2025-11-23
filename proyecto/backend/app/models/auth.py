@@ -1,6 +1,6 @@
 from app.database import execute_query, fetch_query
 
-#execute_query(query, params) ejecuta una consulta NSERT, UPDATE o DELETE y devuelve True o False
+#execute_query(query, params) ejecuta una consulta INSERT, UPDATE o DELETE y devuelve True o False
 
 #fetch query(query, params) ejecuta una consulta SELECT y devuelve los resultados como lista de diccionarios.
 
@@ -29,7 +29,7 @@ class Auth:
         query = "INSERT INTO login (correo, contrasena) VALUES (%s, %s)"
         print("ejecutando query")
         result = execute_query(query, (email, password_hash))
-        print(f"✅ Resultado execute_query: {result}")
+        print(f" Resultado execute_query: {result}")
         return result
 
     

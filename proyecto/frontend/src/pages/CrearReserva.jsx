@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getTurnos, getSalasDisponibles, crearReserva } from '../services/reservasService';
 
 export default function CrearReserva({ onReservaCreada }) {
-  const [paso, setPaso] = useState(1); // 1: Fecha y turno, 2: Seleccionar sala, 3: Confirmar
+  const [paso, setPaso] = useState(1); //  Pasos para la reserva : 1: Fecha y turno, 2: Seleccionar sala, 3: Confirmar
   const [turnos, setTurnos] = useState([]);
   const [salasDisponibles, setSalasDisponibles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -110,10 +110,6 @@ const horaFinRango = tieneRango
   setLoading(false);
   return;
 }
-      // (Opcional) Validaciones mínimas
-      // Por ejemplo: verificar que las CI sean numéricas
-      // const hayInvalido = participantesLimpios.some(p => isNaN(Number(p.ci)));
-      // if (hayInvalido) { setError('Todas las cédulas deben ser numéricas'); setLoading(false); return; }
 
   const confirmarReserva = async () => {
     try {
@@ -247,7 +243,7 @@ const horaFinRango = tieneRango
         </div>
 
         <div className="mb-4">
-  <label className="form-label fw-bold" style={{color: '#003366'}}>⏰ Rango de horario </label>
+  <label className="form-label fw-bold" style={{color: '#003366'}}> Rango de horario </label>
 
   <div className="row g-2">
     <div className="col-md-6">
@@ -465,7 +461,6 @@ const horaFinRango = tieneRango
           </div>
         </div>
 
-        {/* 👉 NUEVO: sección de participantes adicionales */}
         <div className="mb-4">
           <div className="d-flex justify-content-between align-items-center mb-2">
             <label className="form-label fw-bold mb-0" style={{ color: '#003366' }}>
@@ -581,8 +576,8 @@ const horaFinRango = tieneRango
         </div>
       </div>
 
-      {paso === 1 && /* tu renderPaso1 original */ renderPaso1()}
-      {paso === 2 && /* tu renderPaso2 original */ renderPaso2()}
+      {paso === 1 && /* renderPaso1 original */ renderPaso1()}
+      {paso === 2 && /* renderPaso2 original */ renderPaso2()}
       {paso === 3 && renderPaso3()}
     </div>
   );

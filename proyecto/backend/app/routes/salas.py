@@ -6,11 +6,11 @@ from datetime import datetime
 bp = Blueprint('salas', __name__, url_prefix='/api/salas')
 
 @bp.get('')
-@token_required #middleware que protege las rutas,asegurando que el usuario este bajo un JWT válido
+@token_required 
 def get_salas(current_user):
     """Obtiene todas las salas"""
     try:
-        salas = Sala.get_all() #Obtiene todas las salas 
+        salas = Sala.get_all()  
         return jsonify({
             'success': True,
             'data': salas,

@@ -6,8 +6,6 @@ from flask_cors import cross_origin
 bp = Blueprint('bi', __name__, url_prefix='/api/bi')
 ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
-# CONSULTA 1: Ocupación de salas por edificio
-# Muestra cuántas reservas activas tiene cada sala agrupadas por edificio
 @bp.route('/ocupacion-salas', methods=['GET', 'OPTIONS'])
 @cross_origin(origins=ORIGINS,
               methods=['GET', 'OPTIONS'],
@@ -15,6 +13,7 @@ ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
               expose_headers=['Authorization'])
 @admin_required
 def ocupacion_salas(current_user):
+    # Muestra cuántas reservas activas tiene cada sala agrupadas por edificio
     if request.method == 'OPTIONS':
         return ('', 204)
 
@@ -38,8 +37,6 @@ def ocupacion_salas(current_user):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# CONSULTA 2: Reservas por participante
-# Muestra cantidad de reservas por usuario con su estado
 @bp.route('/reservas-por-participante', methods=['GET', 'OPTIONS'])
 @cross_origin(origins=ORIGINS,
               methods=['GET', 'OPTIONS'],
@@ -47,6 +44,7 @@ def ocupacion_salas(current_user):
               expose_headers=['Authorization'])
 @admin_required
 def reservas_por_participante(current_user):
+    # Mostramos la cantidad de reservas por usuario con su estado
     if request.method == 'OPTIONS':
         return ('', 204)
 
@@ -73,8 +71,6 @@ def reservas_por_participante(current_user):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# CONSULTA 3: Turnos más solicitados
-# Muestra qué horarios tienen más demanda
 @bp.route('/turnos-populares', methods=['GET', 'OPTIONS'])
 @cross_origin(origins=ORIGINS,
               methods=['GET', 'OPTIONS'],
@@ -82,6 +78,7 @@ def reservas_por_participante(current_user):
               expose_headers=['Authorization'])
 @admin_required
 def turnos_populares(current_user):
+    # Mostramos los turnos con más reservas realizadas
     if request.method == 'OPTIONS':
         return ('', 204)
 
@@ -103,8 +100,6 @@ def turnos_populares(current_user):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# CONSULTA 4: Tasa de asistencia
-# Calcula porcentaje de asistencia vs inasistencia por participante
 @bp.route('/tasa-asistencia', methods=['GET', 'OPTIONS'])
 @cross_origin(origins=ORIGINS,
               methods=['GET', 'OPTIONS'],
@@ -112,6 +107,7 @@ def turnos_populares(current_user):
               expose_headers=['Authorization'])
 @admin_required
 def tasa_asistencia(current_user):
+    # Mostramos el  porcentaje de asistencia vs inasistencia por participante
     if request.method == 'OPTIONS':
         return ('', 204)
 
@@ -141,8 +137,6 @@ def tasa_asistencia(current_user):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# CONSULTA 5: Sanciones activas
-# Lista participantes con sanciones vigentes
 @bp.route('/sanciones-activas', methods=['GET', 'OPTIONS'])
 @cross_origin(origins=ORIGINS,
               methods=['GET', 'OPTIONS'],
@@ -150,6 +144,7 @@ def tasa_asistencia(current_user):
               expose_headers=['Authorization'])
 @admin_required
 def sanciones_activas(current_user):
+    # Mostramos las sanciones activas de los participantes
     if request.method == 'OPTIONS':
         return ('', 204)
 
@@ -173,8 +168,6 @@ def sanciones_activas(current_user):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# CONSULTA 6: Reservas por rango de fechas
-# Permite filtrar reservas por fecha de inicio y fin
 @bp.route('/reservas-por-fecha', methods=['GET', 'OPTIONS'])
 @cross_origin(origins=ORIGINS,
               methods=['GET', 'OPTIONS'],
@@ -182,6 +175,7 @@ def sanciones_activas(current_user):
               expose_headers=['Authorization'])
 @admin_required
 def reservas_por_fecha(current_user):
+    # Mostramos la cantidad de reservas por fecha en un rango dado
     if request.method == 'OPTIONS':
         return ('', 204)
 

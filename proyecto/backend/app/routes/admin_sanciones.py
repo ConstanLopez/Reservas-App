@@ -7,7 +7,6 @@ from flask_cors import cross_origin
 bp = Blueprint('admin_sanciones', __name__, url_prefix='/api/admin/sanciones')
 ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
-# GET: todas las sanciones
 @bp.route('/', methods=['GET', 'OPTIONS'])
 @cross_origin(origins=ORIGINS,
               methods=['GET','OPTIONS'],
@@ -15,6 +14,7 @@ ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
               expose_headers=['Authorization'])
 @admin_required
 def listar_sanciones(current_user):
+    #Nos muestra todas las sanciones de los participantes
     if request.method == 'OPTIONS':
         return ('', 204)
     try:
@@ -32,7 +32,6 @@ def listar_sanciones(current_user):
         vistas = set()
         unicas = []
         for sancion in todas:
-            # Crear clave única con ci + fecha_inicio + fecha_fin
             clave = (sancion['ci_participante'], sancion['fecha_inicio'], sancion['fecha_fin'])
             if clave not in vistas:
                 vistas.add(clave)
@@ -42,10 +41,10 @@ def listar_sanciones(current_user):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# POST: crear sanción manual
 @bp.post('/')
 @admin_required
 def crear_sancion(current_user):
+    #Creamos una nueva sanción para un participante
     try:
         data = request.get_json()
         required = ['ci_participante', 'fecha_inicio', 'fecha_fin']
@@ -62,21 +61,18 @@ def crear_sancion(current_user):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# PUT: actualizar sanción - como la PK es compuesta, se necesitan los valores viejos y nuevos
 @bp.put('/')
 @admin_required
 def actualizar_sancion(current_user):
+    #Actualizamos una sanción existente
     try:
         data = request.get_json()
         print(f"[UPDATE SANCION] Data recibida: {data}")
-        # Para identificar la sanción a modificar necesitamos la PK completa original
         required = ['ci_participante', 'fecha_inicio', 'fecha_fin']
         for field in required:
             if field not in data:
                 return jsonify({'success': False, 'message': f'Falta campo: {field}'}), 400
 
-        # Como la tabla usa PK compuesta, hacemos DELETE + INSERT
-        # Primero guardamos los valores originales (asumimos que vienen con sufijo _old)
         ci_old = data.get('ci_participante_old', data['ci_participante'])
         fecha_inicio_old = data.get('fecha_inicio_old', data['fecha_inicio'])
         fecha_fin_old = data.get('fecha_fin_old', data['fecha_fin'])
@@ -104,10 +100,11 @@ def actualizar_sancion(current_user):
         print(f"[UPDATE SANCION] Exception: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# DELETE: eliminar (levantar) sanción - usa la PK compuesta
+
 @bp.delete('/')
 @admin_required
 def eliminar_sancion(current_user):
+    #Eliminamos una sanción existente
     try:
         data = request.get_json()
         print(f"[DELETE SANCION] Data recibida: {data}")

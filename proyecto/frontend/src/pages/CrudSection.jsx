@@ -1,16 +1,6 @@
 import { useEffect, useState } from "react";
 import '../styles/estilos.css';
 
-/**
- * title: string
- * api: { fetchAll, create, update, remove }  -> funciones que devuelven Promise(axiosResponse)
- * columns: [{ header, field, render? }]
- * formFields: [
- *    { name, label, type, options?, defaultValue?, readOnlyInEdit?, required? }
- * ]
- * onEdit?: (row) => void  -> callback opcional antes de editar
- * hideCreate?: boolean -> oculta el formulario cuando no está editando
- */
 export default function CrudSection({ title, api, columns, formFields, onEdit, hideCreate }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);

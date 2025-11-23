@@ -8,7 +8,6 @@ const getAuthHeaders = () => {
   };
 };
 
-// ========== RESERVAS ==========
 export const getMisReservas = async (incluirCanceladas = false) => {
   const response = await fetch(
     `${API_URL}/reservas/mis-reservas?incluir_canceladas=${incluirCanceladas}`,
@@ -50,7 +49,6 @@ export const cancelarReserva = async (idReserva) => {
   return response.json();
 };
 
-// ========== SALAS ==========
 export const getSalas = async () => {
   const response = await fetch(`${API_URL}/salas`, {
     headers: getAuthHeaders()
@@ -75,7 +73,6 @@ export const getSalaDetalle = async (nombreSala, edificio) => {
   return response.json();
 };
 
-// ========== TURNOS ==========
 export const getTurnos = async () => {
   const response = await fetch(`${API_URL}/turnos`, {
     headers: getAuthHeaders()

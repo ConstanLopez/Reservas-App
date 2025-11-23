@@ -99,7 +99,7 @@ export default function Reportes() {
   const renderSalasReporte = () => (
     <div className="card" style={{backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #0056A6'}}>
       <div className="card-header text-white" style={{backgroundColor: '#0056A6'}}>
-        <h5 className="mb-0">📊 Salas Más Reservadas</h5>
+        <h5 className="mb-0"> Salas Más Reservadas</h5>
       </div>
       <div className="card-body">
         <div className="table-responsive">
@@ -142,7 +142,7 @@ export default function Reportes() {
   const renderTurnosReporte = () => (
     <div className="card" style={{backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #0056A6'}}>
       <div className="card-header text-white" style={{backgroundColor: '#0056A6'}}>
-        <h5 className="mb-0">🕐 Turnos Más Demandados</h5>
+        <h5 className="mb-0"> Turnos Más Demandados</h5>
       </div>
       <div className="card-body">
         <div className="row g-3">
@@ -178,7 +178,7 @@ export default function Reportes() {
   const renderPromedioReporte = () => (
     <div className="card" style={{backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #0056A6'}}>
       <div className="card-header text-white" style={{backgroundColor: '#0056A6'}}>
-        <h5 className="mb-0">👥 Promedio de Participantes por Sala</h5>
+        <h5 className="mb-0"> Promedio de Participantes por Sala</h5>
       </div>
       <div className="card-body">
         <div className="table-responsive">
@@ -214,7 +214,7 @@ export default function Reportes() {
   const renderCarreraReporte = () => (
     <div className="card" style={{backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #0056A6'}}>
       <div className="card-header text-white" style={{backgroundColor: '#0056A6'}}>
-        <h5 className="mb-0">🎓 Reservas por Carrera y Facultad</h5>
+        <h5 className="mb-0"> Reservas por Carrera y Facultad</h5>
       </div>
       <div className="card-body">
         <div className="table-responsive">
@@ -246,7 +246,7 @@ export default function Reportes() {
   const renderOcupacionReporte = () => (
     <div className="card" style={{backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #0056A6'}}>
       <div className="card-header text-white" style={{backgroundColor: '#0056A6'}}>
-        <h5 className="mb-0">🏢 Porcentaje de Ocupación por Edificio</h5>
+        <h5 className="mb-0"> Porcentaje de Ocupación por Edificio</h5>
       </div>
       <div className="card-body">
         <div className="row g-4">
@@ -334,7 +334,7 @@ export default function Reportes() {
   const renderSancionesReporte = () => (
     <div className="card" style={{backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #0056A6'}}>
       <div className="card-header text-white" style={{backgroundColor: '#0056A6'}}>
-        <h5 className="mb-0">⚠️ Sanciones por Rol</h5>
+        <h5 className="mb-0"> Sanciones por Rol</h5>
       </div>
       <div className="card-body">
         <div className="row g-4">
@@ -374,7 +374,7 @@ export default function Reportes() {
   const renderEfectividadReporte = () => (
     <div className="card" style={{backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #0056A6'}}>
       <div className="card-header text-white" style={{backgroundColor: '#0056A6'}}>
-        <h5 className="mb-0">✅ Efectividad de Reservas</h5>
+        <h5 className="mb-0"> Efectividad de Reservas</h5>
       </div>
       <div className="card-body">
         {efectividadData && (
@@ -460,7 +460,7 @@ export default function Reportes() {
   const renderHorariosReporte = () => (
     <div className="card" style={{backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #0056A6'}}>
       <div className="card-header text-white" style={{backgroundColor: '#0056A6'}}>
-        <h5 className="mb-0">⏰ Horarios Pico (Franja Horaria)</h5>
+        <h5 className="mb-0"> Horarios Pico (Franja Horaria)</h5>
       </div>
       <div className="card-body">
         <div className="row g-4">
@@ -573,17 +573,17 @@ export default function Reportes() {
   );
 
   const menuReportes = [
-    { id: 'salas', icon: '📊', label: 'Salas Más Reservadas' },
-    { id: 'turnos', icon: '🕐', label: 'Turnos Demandados' },
-    { id: 'promedio', icon: '👥', label: 'Promedio Participantes' },
-    { id: 'carrera', icon: '🎓', label: 'Por Carrera/Facultad' },
-    { id: 'ocupacion', icon: '🏢', label: 'Ocupación Edificios' },
-    { id: 'rol', icon: '📈', label: 'Reservas por Rol' },
-    { id: 'sanciones', icon: '⚠️', label: 'Sanciones' },
-    { id: 'efectividad', icon: '✅', label: 'Efectividad' },
-    { id: 'horarios', icon: '⏰', label: 'Horarios Pico' },
-    { id: 'tendencia', icon: '📅', label: 'Tendencia Mensual' },
-    { id: 'usuarios', icon: '🏆', label: 'Top Usuarios' },
+    { id: 'salas', label: 'Salas Más Reservadas' },
+    { id: 'turnos', label: 'Turnos Demandados' },
+    { id: 'promedio', label: 'Promedio Participantes' },
+    { id: 'carrera',  label: 'Por Carrera/Facultad' },
+    { id: 'ocupacion', label: 'Ocupación Edificios' },
+    { id: 'rol',  label: 'Reservas por Rol' },
+    { id: 'sanciones',  label: 'Sanciones' },
+    { id: 'efectividad',  label: 'Efectividad' },
+    { id: 'horarios',  label: 'Horarios Pico' },
+    { id: 'tendencia', label: 'Tendencia Mensual' },
+    { id: 'usuarios', label: 'Top Usuarios' },
   ];
 
   return (

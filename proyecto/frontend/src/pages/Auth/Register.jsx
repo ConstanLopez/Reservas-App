@@ -67,7 +67,7 @@ export function Register() {
 
         setLoading(true);
 
-  // 👇 ESTE ES EL PAYLOAD (lo que se manda al backend)
+  // payload para el registro, es lo que se manda a back
   const payload = {
     ci: formData.ci.trim(),
     nombre: formData.nombre.trim(),
@@ -80,9 +80,9 @@ export function Register() {
 
 
 
-  console.log('payload register →', payload); // 👈 LOG CLAVE
+  console.log('payload register →', payload); // log usado para ver como se esta mandando la info a back en testeo
 
-  const result = await register(payload); // <-- usa useAuth()
+  const result = await register(payload); 
   if (result.success) navigate('/dashboard');
   else setError(result.error);
 
