@@ -243,6 +243,7 @@ class Reserva:
             VALUES (%s, %s, %s, 0, %s, %s)
         """
 
+        print(participantes)
         for p in participantes:
             # p viene como dict {ci: "...", nombre: "..."} desde el front
             if isinstance(p, dict):
@@ -426,9 +427,13 @@ class Reserva:
 
     @staticmethod
     def cancelar_por_admin(id_reserva):
-        query = "UPDATE reserva SET estado = 'cancelada_admin' WHERE id_reserva = %s"
-        return execute_query(query, (id_reserva,)), "Reserva cancelada por administrador"
-    
+        query = "UPDATE reserva SET estado = 'cancelada' WHERE id_reserva = %s"
+        ok = execute_query(query, (id_reserva,))
+        if ok:
+            return True, "Reserva cancelada por administrador"
+        else:
+            return False, "Error al cancelar la reserva por administrador"
+        
     @staticmethod
     def eliminar_por_admin(id_reserva):
         query = "DELETE FROM reserva WHERE id_reserva = %s"
@@ -437,14 +442,25 @@ class Reserva:
     @staticmethod
     def get_all():
         """Obtiene todas las reservas con información detallada"""
-        query = """
-            SELECT r.*, 
-                   rp.ci_participante, rp.fecha_solicitud_reserva, rp.asistencia,
-                   s.capacidad, s.tipo_sala,
-                   e.direccion, e.departamento,
-                   TIME_FORMAT(t.hora_inicio, '%H:%i') AS hora_inicio,
-                    TIME_FORMAT(t.hora_fin, '%H:%i')   AS hora_fin,
-                   p.nombre, p.apellido, p.email
+        query = """ 
+            SELECT 
+                r.id_reserva,
+                r.nombre_sala,
+                r.edificio,
+                r.fecha,
+                r.id_turno,
+                r.estado,
+                -- formateo de los TIME de la tabla reserva
+                TIME_FORMAT(r.hora_inicio_rango, '%H:%i') AS hora_inicio_rango,
+                TIME_FORMAT(r.hora_fin_rango,   '%H:%i') AS hora_fin_rango,
+
+                rp.ci_participante, rp.fecha_solicitud_reserva, rp.asistencia,
+                s.capacidad, s.tipo_sala,
+                e.direccion, e.departamento,
+                -- formateo de los TIME de turno
+                TIME_FORMAT(t.hora_inicio, '%H:%i') AS hora_inicio,
+                TIME_FORMAT(t.hora_fin,   '%H:%i') AS hora_fin,
+                p.nombre, p.apellido, p.email
             FROM reserva r
             JOIN reserva_participante rp ON r.id_reserva = rp.id_reserva
             JOIN sala s ON r.nombre_sala = s.nombre_sala AND r.edificio = s.edificio
@@ -453,4 +469,13 @@ class Reserva:
             JOIN participante p ON rp.ci_participante = p.ci
             ORDER BY r.fecha DESC, t.hora_inicio DESC
         """
-        return fetch_query(query)
+        todas = fetch_query(query)
+
+        vistas = set()
+        unicas = []
+        for reserva in todas:
+            if reserva['id_reserva'] not in vistas:
+                vistas.add(reserva['id_reserva'])
+                unicas.append(reserva)
+
+        return unicas

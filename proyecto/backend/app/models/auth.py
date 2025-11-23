@@ -48,7 +48,7 @@ class Auth:
         """Asigna programa académico al participante en la base de datos"""
         query = """
             INSERT INTO participante_programa_academico 
-            (ci_participante, nombre_programa, rol)
+            (ci_participante, nombre_programa, rol_academico)
             VALUES (%s, %s, %s)
         """
         return execute_query(query, (ci, nombre_programa, rol))
@@ -58,13 +58,13 @@ class Auth:
         """Obtiene datos completos del usuario por email desde la base de datos"""
         query = """
             SELECT 
-                l.correo,
-                l.contrasena as password_hash,
-                p.ci,
-                p.nombre,
-                p.apellido,
-                p.email,
-                p.rol
+                l.correo AS correo,
+                l.contrasena AS password_hash,
+                p.ci AS ci,
+                p.nombre AS nombre,
+                p.apellido AS apellido,
+                p.email AS email,
+                p.rol_sistema AS rol_sistema
             FROM login l
             INNER JOIN participante p ON l.correo = p.email
             WHERE l.correo = %s
@@ -77,7 +77,7 @@ class Auth:
         """Obtiene los roles y programas del usuario desde la base de datos"""
         query = """
             SELECT 
-                ppa.rol,
+                ppa.rol_academico,
                 ppa.nombre_programa,
                 pa.tipo
             FROM participante_programa_academico ppa
@@ -85,3 +85,6 @@ class Auth:
             WHERE ppa.ci_participante = %s
         """
         return fetch_query(query, (ci,))
+    
+
+    

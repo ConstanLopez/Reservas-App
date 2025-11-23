@@ -1,27 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dropdown } from 'react-bootstrap';
 import CrearReserva from '../pages/CrearReserva';
 import MisReservas from '../pages/MisReservas';
 import AdminPanel from '../pages/Auth/AdminPanel';
+import Reportes from '../pages/Reportes';
 import { useAuth } from '../context/AuthContext';
 import '../styles/estilos.css';
 
 export default function Dashboard() {
-  const [vistaActual, setVistaActual] = useState('inicio');
   const { user, logout } = useAuth();
-
   const esAdmin = user?.rol === 'admin';
+  
+  const [vistaActual, setVistaActual] = useState('inicio');
+
+  useEffect(() => {
+    if (esAdmin && vistaActual === 'inicio') {
+      setVistaActual('admin');
+    }
+  }, [esAdmin, vistaActual]);
 
   // Cierra sesión y redirige al login
   const handleLogout = () => {
-    logout(); // Limpia token, user y estado de autenticación
-    window.location.href = '/login'; // Redirige a la página de login
+    logout();
+    window.location.href = '/login';
   };
 
   const renderVista = () => {
-    // Si es admin, siempre mostramos el panel de administración
+    // Si es admin, mostrar según la vista seleccionada
     if (esAdmin) {
-      return <AdminPanel />;
+      switch (vistaActual) {
+        case 'reportes':
+          return <Reportes />;
+        case 'admin':
+        default:
+          return <AdminPanel />;
+      }
     }
 
     // Si NO es admin, flujo normal de reservas
@@ -135,11 +148,26 @@ export default function Dashboard() {
               )}
 
               {esAdmin && (
-                <li className="nav-item">
-                  <span className="nav-link active">
-                    Panel de Administración
-                  </span>
-                </li>
+                <>
+                  <li className="nav-item">
+                    <button
+                      className={`nav-link btn btn-link ${vistaActual === 'admin' ? 'active' : ''}`}
+                      onClick={() => setVistaActual('admin')}
+                      style={vistaActual === 'admin' ? {color: '#E6F0FA', fontWeight: 'bold'} : {color: '#E6F0FA'}}
+                    >
+                      🔧 Panel Admin
+                    </button>
+                  </li>
+                  <li className="nav-item">
+                    <button
+                      className={`nav-link btn btn-link ${vistaActual === 'reportes' ? 'active' : ''}`}
+                      onClick={() => setVistaActual('reportes')}
+                      style={vistaActual === 'reportes' ? {color: '#E6F0FA', fontWeight: 'bold'} : {color: '#E6F0FA'}}
+                    >
+                      📊 Reportes BI
+                    </button>
+                  </li>
+                </>
               )}
 
               {/* Dropdown usuario */}

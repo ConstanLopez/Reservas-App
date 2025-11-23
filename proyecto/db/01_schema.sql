@@ -13,11 +13,11 @@ CREATE TABLE login (
 -- Datos personales de usuarios (alumnos y docentes)
 -- ⚠️ AGREGADO: campo 'rol' para admin/usuario
 CREATE TABLE participante (
-    ci VARCHAR(20) PRIMARY KEY,
+    ci VARCHAR(20)  PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
-    rol ENUM('admin', 'usuario') DEFAULT 'usuario',  -- ✅ NUEVO CAMPO
+    rol_sistema ENUM('admin', 'usuario') DEFAULT 'usuario',  -- ✅ NUEVO CAMPO
     FOREIGN KEY (email) REFERENCES login(correo) ON DELETE CASCADE
 );
 
@@ -43,7 +43,7 @@ CREATE TABLE participante_programa_academico (
     id_alumno_programa INT AUTO_INCREMENT PRIMARY KEY,
     ci_participante VARCHAR(20) NOT NULL,
     nombre_programa VARCHAR(100) NOT NULL,
-    rol ENUM('alumno', 'docente') NOT NULL,
+    rol_academico ENUM('alumno', 'docente') NOT NULL,
     FOREIGN KEY (ci_participante) REFERENCES participante(ci) ON DELETE CASCADE,
     FOREIGN KEY (nombre_programa) REFERENCES programa_academico(nombre_programa)
 );
@@ -80,8 +80,8 @@ CREATE TABLE reserva (
     edificio VARCHAR(100) NOT NULL,
     fecha DATE NOT NULL,
     id_turno INT NOT NULL,
-    hora_inicio_rango TIME NULL
-    hora_fin_rango TIME NULL;
+    hora_inicio_rango TIME NULL,
+    hora_fin_rango TIME NULL,
     estado ENUM('activa', 'cancelada', 'sin asistencia', 'finalizada') NOT NULL DEFAULT 'activa',
     FOREIGN KEY (nombre_sala, edificio) REFERENCES sala(nombre_sala, edificio),
     FOREIGN KEY (id_turno) REFERENCES turno(id_turno)
@@ -91,13 +91,12 @@ CREATE TABLE reserva (
 -- ⚠️ CORREGIDO: id_reserva es PRIMARY KEY (como espera tu código Python)
 CREATE TABLE reserva_participante (
     ci_participante VARCHAR(20) NOT NULL,
-    id_reserva INT NOT NULL
+    id_reserva INT NOT NULL,
     fecha_solicitud_reserva DATE NOT NULL,
     asistencia BOOLEAN NOT NULL DEFAULT 0,
     nombre_invitado VARCHAR(100) NULL,
-    apellido_invitado VARCHAR(100) NULL;
-    PRIMARY KEY (id_reserva, ci_participante);
-    FOREIGN KEY (ci_participante) REFERENCES participante(ci) ON DELETE CASCADE,
+    apellido_invitado VARCHAR(100) NULL,
+    PRIMARY KEY (id_reserva, ci_participante),
     FOREIGN KEY (id_reserva) REFERENCES reserva(id_reserva) ON DELETE CASCADE
 );
 

@@ -59,7 +59,7 @@ def create_app():
     
 
     # Registrar blueprints
-    from .routes import auth, reservas, salas,reportes, turnos,admin_reservas,admin_participantes,admin_sanciones,admin_salas,admin_turnos,bi
+    from .routes import auth, reservas, salas, turnos,admin_reservas,admin_participantes,admin_sanciones,admin_salas,admin_turnos,bi,reportes
     app.register_blueprint(auth.bp)
     app.register_blueprint(reservas.bp)
     app.register_blueprint(salas.bp)

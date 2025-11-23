@@ -26,7 +26,19 @@ def listar_sanciones(current_user):
             JOIN participante p ON s.ci_participante = p.ci
             ORDER BY s.fecha_inicio DESC
         """
-        return jsonify({'success': True, 'data': fetch_query(query)}), 200
+        todas = fetch_query(query)
+        
+        # Eliminar duplicados
+        vistas = set()
+        unicas = []
+        for sancion in todas:
+            # Crear clave única con ci + fecha_inicio + fecha_fin
+            clave = (sancion['ci_participante'], sancion['fecha_inicio'], sancion['fecha_fin'])
+            if clave not in vistas:
+                vistas.add(clave)
+                unicas.append(sancion)
+        
+        return jsonify({'success': True, 'data': unicas}), 200
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 

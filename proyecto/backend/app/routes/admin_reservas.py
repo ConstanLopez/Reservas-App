@@ -33,7 +33,7 @@ def actualizar_reserva(current_user, id_reserva):
 @admin_required
 def eliminar_reserva(current_user, id_reserva):
     try:
-        ok, msg = Reserva.cancelar_por_admin(id_reserva)
+        ok, msg = Reserva.eliminar_por_admin(id_reserva)
         status = 200 if ok else 400
         return jsonify({'success': ok, 'message': msg}), status
     except Exception as e:
