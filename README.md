@@ -1,27 +1,37 @@
 Para iniciar el proyecto:
 
-Levantar el docker compose con los siguientes comandos, en la carpeta dond esta el compose con los siguientes comandos
+# Requisitos:
+-Tener Docker Desktop
+# -Dependencias Backend:
+  ¿Cómo instalarlas?
+    Dentro de la carpeta backend, ejecutar en la consola : pip install -r requirements.txt
 
-# Build + up (usa el compose correcto)
-docker compose -f "docker-compose reservAPP.yml" up -d --build
+# -Dependencias Frontend
+   ¿Cómo instalarlas?
+    Dentro de la carpeta frontend, ejecutar en la consola : npm install
 
-# Ver contenedores del stack
-docker compose -f "docker-compose reservAPP.yml" ps
+ # ¿Como levantar el compose de Docker para la db?
+ Ejecutar en la consola el comando: docker-compose -f "docker-compose APP.yml" up
 
-# Logs del backend (salida en vivo)
-docker compose -f "docker-compose reservAPP.yml" logs -f backend
+# ¿Como correr el programa?
+Ejecutar el backend: Desde la carpeta backend ejecutar el comando python -m app.main en la consola
+Ejecutar el frontend: Desde la carpeta frontend ejecutar el comando npm run dev en la consola
 
-# Frontend
-Para prender el frontend, navegar hasta la carpeta frontend y inicializar con :
-npm run dev
+# ¿Cómo conectar la bd para verla en dataGrip?
+Usar los siguentes campos:
+host: localhost
+port: 3307
+user:appuser
+password:apppass
+db name: reservas_db
 
-# Backend
-Para prender el backend se tiene que haber hecho la parte de docker previamente y  hacer:
-python -m app.main
+# ¿Como usar el software?
 
-# Data Grip
-Host: localhost
-Port: 3307    
-User: appuser
-Password: apppass
-Database: reservas_db
+Usuario Normal (No admin):
+-Puede crear y ver sus reservas, si se quiere realizar una reserva en un horario que es más de un bloque de hora ej; (10:30-12:00) se debe tocar el seleccionar bloques automaticamente.
+
+Usuario admin (En la db se proporciona uno, con la password 123456 y el mail correspondiente (el password se ve hasheado, por eso la aclaracion )
+-Puede hacer ABM de participantes, salas , turnos, sanciones y reservas. En la parte superior derecha, esta la pestaña para acceder al BI
+
+# -Restricciones de uso:
+-Se usa un JWT de una hora, por lo tanto a partir de esa hora, es necesario volver a iniciar sesion, ya que no se va a poder realizar acciones.
